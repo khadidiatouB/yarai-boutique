@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARAÏ — Simplement Belle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+<!-- PayDunya : aucun SDK frontend requis (flux redirect) -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════ NAV ════════════════════ -->
+<nav id="navbar">
+  <span class="nav-logo" onclick="navigate('/')">YARAÏ</span>
+  <ul class="nav-links">
+    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('collection')?.scrollIntoView({behavior:'smooth'}),100)">Collection</a></li>
+    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('about')?.scrollIntoView({behavior:'smooth'}),100)">La Marque</a></li>
+    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('contact')?.scrollIntoView({behavior:'smooth'}),100)">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-cart-mobile" onclick="toggleCart()">
+      🛍️ <span class="cart-badge" id="cartBadgeMobile"></span>
+    </button>
+    <div class="nav-burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+    <button class="nav-cta" onclick="toggleCart()">
+      Panier <span class="cart-badge" id="cartBadgeDesktop"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ════════════════════ PANIER ════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h2>Mon panier</h2>
+    <span class="cart-count-label" id="cartCountLabel"></span>
+    <button class="cart-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-subtotal"><span>Sous-total</span><span id="cartSubtotal">0 FCFA</span></div>
+    <div class="cart-total"><span>Total</span><span id="cartTotal">0 FCFA</span></div>
+    <button class="btn-checkout" onclick="goToCheckout()">Passer la commande →</button>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE ACCUEIL ════════════════════ -->
+<div id="page-home">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Collection Estivale 2025</div>
+      <h1 class="hero-title">Sois<br><em>simplement</em><br>belle.</h1>
+      <p class="hero-slogan">Élégance naturelle · Fait au Sénégal</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">Découvrir la collection</button>
+        <button class="btn-outline" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Notre histoire</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-img-wrap">
+        <img src="assets/naya_pants_extralarge.png" alt="YARAÏ Collection">
+        <div class="hero-badge">Nouveau</div>
+        <div class="hero-tag">Collection Capsule 2025</div>
+      </div>
+      <div class="hero-scroll"><span>Défiler</span><div class="scroll-line"></div></div>
+    </div>
+  </section>
+
+  <!-- COLLECTION -->
+  <section id="collection" style="background:var(--white);padding:100px 60px;">
+    <div class="collection-intro reveal">
+      <h2 class="collection-headline">Capsule <em>Estivale</em><br>— Pièces de Caractère</h2>
+      <div class="collection-filter">
+        <button class="filter-btn active" onclick="filterProducts('all',this)">Tout</button>
+        <button class="filter-btn" onclick="filterProducts('ensemble',this)">Ensembles</button>
+        <button class="filter-btn" onclick="filterProducts('jupe',this)">Jupes</button>
+        <button class="filter-btn" onclick="filterProducts('robe',this)">Robes</button>
+      </div>
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
+  </section>
+
+  <!-- À PROPOS -->
+  <section id="about" style="background:var(--deep);padding:100px 60px;position:relative;overflow:hidden;">
+    <div class="about-grid">
+      <div class="about-visual reveal">
+        <div class="about-frame">
+          <div class="about-label">Dakar · Sénégal</div>
+          <img src="assets/safia.png" alt="YARAÏ Atelier" style="width:100%;height:100%;object-fit:contain;object-position:top;border-radius:24px;opacity:.8">
+        </div>
+      </div>
+      <div class="about-content">
+        <div class="section-label reveal"><span class="num">02</span><span class="txt">La Marque</span><div class="section-line"></div></div>
+        <h2 class="about-title reveal">L'élégance<br>naît <em>ici,</em><br>au Sénégal.</h2>
+        <p class="about-text reveal">YARAÏ est née d'une conviction simple : toute femme mérite de se sentir belle au quotidien, sans effort, sans compromis. Des pièces pensées pour mettre en valeur la silhouette tout en restant légères, confortables, libres.</p>
+        <p class="about-text reveal">Notre première capsule estivale est entièrement confectionnée au Sénégal, par des mains expertes qui donnent vie à chaque couture. Production locale, savoir-faire artisanal, impact humain réel.</p>
+        <div class="about-pillars reveal">
+          <div class="pillar"><div class="pillar-icon">🌿</div><div class="pillar-title">Local & Artisanal</div><div class="pillar-text">Confectionné au Sénégal par des couturiers de talent.</div></div>
+          <div class="pillar"><div class="pillar-icon">✨</div><div class="pillar-title">Accessible</div><div class="pillar-text">L'élégance pour toutes, à des prix justes et transparents.</div></div>
+          <div class="pillar"><div class="pillar-icon">💃</div><div class="pillar-title">Féminin & Libre</div><div class="pillar-text">Des coupes qui célèbrent le corps de la femme moderne.</div></div>
+          <div class="pillar"><div class="pillar-icon">🌍</div><div class="pillar-title">Livraison Mondiale</div><div class="pillar-text">Expédition partout dans le monde. Paiement international.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-inner">
+      <h2 class="contact-title reveal">Restons<br><em>connectées.</em></h2>
+      <p class="contact-sub reveal">Suivez YARAÏ sur les réseaux sociaux pour ne rien manquer de la collection et des nouveautés.</p>
+      <div class="contact-grid reveal">
+        <a class="contact-card" href="#"><div class="icon">📸</div><div class="name">Instagram</div><div class="val">@yarai.officiel</div></a>
+        <a class="contact-card" href="#"><div class="icon">🎵</div><div class="name">TikTok</div><div class="val">@yarai.mode</div></a>
+        <a class="contact-card" href="mailto:contact@yarai.sn"><div class="icon">✉️</div><div class="name">Email</div><div class="val">contact@yarai.sn</div></a>
+      </div>
+      <div class="contact-form reveal">
+        <input type="email" placeholder="Votre email pour la newsletter…" id="emailInput"/>
+        <button onclick="subscribe()">S'inscrire</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div><div class="footer-logo">YARAÏ</div><div class="footer-slogan">simplement belle</div></div>
+    <div class="footer-links">
+      <a onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">Collection</a>
+      <a onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">La Marque</a>
+      <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
+    </div>
+    <div class="footer-copy">© 2025 YARAÏ · Dakar, Sénégal · Paiement sécurisé</div>
+  </footer>
+
+</div><!-- /page-home -->
+
+<!-- ════════════════════ PAGE PRODUIT ════════════════════ -->
+<div id="page-produit"></div>
+
+<!-- ════════════════════ PAGE CHECKOUT ════════════════════ -->
+<div id="page-checkout">
+  <div class="checkout-layout">
+
+    <!-- Colonne principale -->
+    <div class="checkout-main">
+      <button class="pdp-back" onclick="navigate('/')">Retour à la boutique</button>
+      <h1 class="checkout-title" style="margin-top:24px">Finaliser<br><em>ma commande</em></h1>
+      <p class="checkout-sub">Paiement sécurisé · Livraison mondiale</p>
+
+      <!-- Steps -->
+      <div class="co-steps-bar">
+        <div class="co-step-item">
+          <div class="co-step-circle active" id="cstep1">1</div>
+          <span class="co-step-label active" id="csteplabel1">Coordonnées</span>
+        </div>
+        <div class="co-step-line" id="cline1"></div>
+        <div class="co-step-item">
+          <div class="co-step-circle" id="cstep2">2</div>
+          <span class="co-step-label" id="csteplabel2">Paiement</span>
+        </div>
+        <div class="co-step-line" id="cline2"></div>
+        <div class="co-step-item">
+          <div class="co-step-circle" id="cstep3">3</div>
+          <span class="co-step-label" id="csteplabel3">Confirmation</span>
+        </div>
+      </div>
+
+      <!-- Coordonnées -->
+      <div class="co-block">
+        <div class="co-block-title">Vos coordonnées</div>
+        <div class="co-grid-2">
+          <div class="co-field"><label>Prénom & Nom *</label><input class="co-input" id="co-name" type="text" placeholder="Fatou Diallo"></div>
+          <div class="co-field"><label>Email *</label><input class="co-input" id="co-email" type="email" placeholder="fatou@email.com"></div>
+          <div class="co-field"><label>Téléphone *</label><input class="co-input" id="co-phone" type="tel" placeholder="+221 77 000 00 00"></div>
+          <div class="co-field"><label>Ville</label><input class="co-input" id="co-city" type="text" placeholder="Dakar, Paris, New York…"></div>
+          <div class="co-field" style="grid-column:span 2"><label>Adresse de livraison</label><input class="co-input" id="co-address" type="text" placeholder="Rue, quartier, code postal…"></div>
+          <div class="co-field"><label>Pays</label>
+            <select class="co-input" id="co-country">
+              <option value="SN">🇸🇳 Sénégal</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="CI">🇨🇮 Côte d'Ivoire</option>
+              <option value="ML">🇲🇱 Mali</option>
+              <option value="GN">🇬🇳 Guinée</option>
+              <option value="CM">🇨🇲 Cameroun</option>
+              <option value="US">🇺🇸 États-Unis</option>
+              <option value="GB">🇬🇧 Royaume-Uni</option>
+              <option value="DE">🇩🇪 Allemagne</option>
+              <option value="OTHER">🌍 Autre pays</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode de paiement -->
+      <div class="co-block">
+        <div class="co-block-title">Mode de paiement <span>Sécurisé SSL 256 bits 🔒</span></div>
+
+        <div class="pay-tabs">
+          <button class="pay-tab" onclick="selectPayMethod('card',this)">
+            <span class="t-icon">💳</span>
+            <span class="t-name">Carte bancaire</span>
+            <span class="t-sub">Visa · Mastercard</span>
+          </button>
+          <button class="pay-tab" onclick="selectPayMethod('wave',this)">
+            <span class="t-icon">🌊</span>
+            <span class="t-name">Wave</span>
+            <span class="t-sub">Mobile Money</span>
+          </button>
+          <button class="pay-tab" onclick="selectPayMethod('orange',this)">
+            <span class="t-icon">🟠</span>
+            <span class="t-name">Orange Money</span>
+            <span class="t-sub">Mobile Money</span>
+          </button>
+          <button class="pay-tab" onclick="selectPayMethod('wallet',this)">
+            <span class="t-icon">⬛</span>
+            <span class="t-name">Apple / Google Pay</span>
+            <span class="t-sub">Paiement rapide</span>
+          </button>
+        </div>
+
+        <!-- Carte Stripe -->
+        <div id="card-fields" style="display:none">
+          <div class="co-field">
+            <label>Informations de carte</label>
+            <div id="stripe-element"></div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:.5px">
+            🔒 Vos données sont chiffrées par Stripe. YARAÏ ne stocke aucune information bancaire.
+          </p>
+        </div>
+
+        <!-- Wave -->
+        <div id="wave-fields" style="display:none">
+          <div class="co-field">
+            <label>Numéro Wave</label>
+            <div class="phone-prefix-wrap">
+              <span class="phone-flag">🇸🇳 +221</span>
+              <input class="phone-flag-input" type="tel" id="wave-phone" placeholder="77 000 00 00" maxlength="9">
+            </div>
+          </div>
+          <div class="mobile-info-box">
+            Après confirmation, vous recevrez une <strong>notification Wave</strong> sur ce numéro pour valider le paiement. Le montant sera débité de votre compte Wave.
+          </div>
+        </div>
+
+        <!-- Orange Money -->
+        <div id="orange-fields" style="display:none">
+          <div class="co-field">
+            <label>Numéro Orange Money</label>
+            <div class="phone-prefix-wrap">
+              <span class="phone-flag">🇸🇳 +221</span>
+              <input class="phone-flag-input" type="tel" id="orange-phone" placeholder="77 000 00 00" maxlength="9">
+            </div>
+          </div>
+          <div class="mobile-info-box">
+            Vous recevrez un <strong>code USSD Orange Money</strong> pour confirmer le paiement. Composez le code sur votre téléphone pour valider.
+          </div>
+        </div>
+
+        <!-- Apple / Google Pay -->
+        <div id="wallet-fields" style="display:none">
+          <div class="wallet-btns">
+            <button id="apple-pay-btn" onclick="processStripePayment(cart.reduce((a,c)=>a+c.product.price*c.qty,0), document.getElementById('co-name')?.value, document.getElementById('co-email')?.value)">
+               Pay
+            </button>
+            <button id="google-pay-btn" onclick="processStripePayment(cart.reduce((a,c)=>a+c.product.price*c.qty,0), document.getElementById('co-name')?.value, document.getElementById('co-email')?.value)">
+              <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>&nbsp;Pay
+            </button>
+            <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">Apple Pay disponible sur Safari · Google Pay sur Chrome</p>
+          </div>
+        </div>
+
+      </div><!-- /co-block paiement -->
+
+      <button class="btn-pay-final" id="btnPayFinal" onclick="validateAndPay()">
+        Confirmer et payer →
+      </button>
+
+    </div><!-- /checkout-main -->
+
+    <!-- Récap commande sidebar -->
+    <div class="checkout-recap">
+      <div class="recap-title">Votre commande</div>
+      <div class="recap-items" id="recapItems"></div>
+      <div class="recap-line"><span>Sous-total</span><span class="recap-total-amount">0 FCFA</span></div>
+      <div class="recap-line"><span>Livraison</span><span>Calculée à l'expédition</span></div>
+      <div class="recap-total"><span>Total</span><span class="recap-total-amount" style="color:var(--terra)">0 FCFA</span></div>
+      <div class="recap-secure">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Paiement sécurisé SSL · Données protégées
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" style="height:24px;opacity:.7">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style="height:24px;opacity:.7">
+      </div>
+    </div>
+
+  </div><!-- /checkout-layout -->
+</div><!-- /page-checkout -->
+
+<!-- ════════════════════ PAGE CONFIRMATION ════════════════════ -->
+<div id="page-confirmation">
+  <div class="confirmation-box">
+    <div class="confirmation-icon">🎉</div>
+    <h1 class="confirmation-title">Merci pour<br>votre <em>commande !</em></h1>
+    <p class="confirmation-text">
+      Votre paiement a bien été reçu. Vous allez recevoir un email de confirmation sous quelques minutes.<br><br>
+      Notre équipe vous contactera dans les 24h pour organiser la livraison.
+    </p>
+    <div class="confirmation-ref" id="confirmRef">Référence : YARAÏ-XXXXXX</div>
+    <button class="btn-primary" onclick="navigate('/')">Retour à la boutique</button>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/payment.js"></script>
+<script>
+  // Générer une référence de commande à l'affichage de la confirmation
+  window.addEventListener("hashchange", () => {
+    if (window.location.hash === "#/confirmation") {
+      const ref = "YARAÏ-" + Date.now().toString(36).toUpperCase();
+      const el = document.getElementById("confirmRef");
+      if (el) el.textContent = "Référence : " + ref;
+    }
+  });
+</script>
+</body>
+</html>

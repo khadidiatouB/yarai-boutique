@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Produit ──────────────────────────────────────────────────
+model Product {
+  id          String      @id              // ex: "skirt-safia"
+  name        String
+  category    String
+  price       Int                          // en FCFA
+  badge       String?
+  badgeColor  String?
+  description String?
+  createdAt   DateTime    @default(now())
+
+  stocks      Stock[]
+  orderItems  OrderItem[]
+}
+
+// ── Stock par variante + taille ───────────────────────────────
+model Stock {
+  id        Int     @id @default(autoincrement())
+  productId String
+  variant   String  // ex: "Noir", "Marron"
+  size      String  // ex: "S", "M", "L"
+  qty       Int     @default(0)
+
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, variant, size])
+}
+
+// ── Client ────────────────────────────────────────────────────
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  city      String?
+  address   String?
+  country   String?
+  createdAt DateTime @default(now())
+
+  orders    Order[]
+}
+
+// ── Commande ──────────────────────────────────────────────────
+model Order {
+  id            Int         @id @default(autoincrement())
+  reference     String      @unique   // ex: "YARAI-LX74K"
+  status        OrderStatus @default(PENDING)
+  total         Int                   // en FCFA
+  paymentMethod String                // "card", "wave", "orange", "wallet"
+  paymentId     String?               // Stripe PaymentIntent ID ou CinetPay transaction_id
+  customerId    Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  items         OrderItem[]
+}
+
+enum OrderStatus {
+  PENDING    // en attente de paiement
+  PAID       // paiement confirmé
+  SHIPPED    // expédié
+  DELIVERED  // livré
+  CANCELLED  // annulé
+}
+
+// ── Admin ─────────────────────────────────────────────────────
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // bcrypt hash
+  createdAt DateTime @default(now())
+}
+
+// ── Ligne de commande ─────────────────────────────────────────
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId String
+  variant   String
+  size      String
+  qty       Int
+  price     Int     // prix unitaire au moment de la commande
+
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}

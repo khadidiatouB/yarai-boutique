@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: yarai-site
+    runtime: node
+    buildCommand: npm install && npx prisma generate
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: PAYDUNYA_MASTER_KEY
+        sync: false
+      - key: PAYDUNYA_PRIVATE_KEY
+        sync: false
+      - key: PAYDUNYA_TOKEN
+        sync: false
+      - key: PAYDUNYA_MODE
+        value: test
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: BACKEND_URL
+        fromService:
+          name: yarai-site
+          type: web
+          property: host
+      - key: FRONTEND_URL
+        fromService:
+          name: yarai-site
+          type: web
+          property: host

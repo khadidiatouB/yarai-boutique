@@ -1,0 +1,14 @@
+port : 5432
+pwd-supabase: y@rai2026store
+
+Cles de secours
+PZQG-X41W-387S-F8SQ-PPLT
+SWIK-8APR-RLA6-NFXL-Q52U
+MNYU-JTTT-2GL6-FFTX-ZDJJ
+EVBJ-65ZI-HAC5-4RSR-NA8U
+MINM-G7KB-S2BC-PJGO-BI4X
+
+clé API resend : re_4qHomqkS_Gc4TzV5op1eTT9U6na5echJk
+curl -X POST https://yarai-store.onrender.com/api/admin/setup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@yarai.com","password":"y@rai2026","secret":"y@rai2026"}'

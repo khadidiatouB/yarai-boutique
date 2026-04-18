@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARAÏ — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --terra:#C4704A; --deep:#261A12; --sand:#F2E4D0; --warm:#FBF6EE; --muted:#957860; --green:#2d7a4f; --red:#c0392b; }
+  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:var(--warm); color:var(--deep); font-size:14px; }
+
+  /* LOGIN */
+  #login-page { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .login-box { background:white; border-radius:24px; padding:48px; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(0,0,0,.08); }
+  .login-logo { font-family:'Outfit',sans-serif; font-size:28px; letter-spacing:8px; color:var(--terra); margin-bottom:8px; }
+  .login-sub { font-size:12px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:32px; }
+  .login-field { margin-bottom:16px; }
+  .login-field label { display:block; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .login-field input { width:100%; padding:12px 16px; border:1px solid var(--sand); border-radius:12px; font-family:'Outfit',sans-serif; font-size:14px; outline:none; }
+  .login-field input:focus { border-color:var(--terra); }
+  .btn-login { width:100%; padding:14px; background:var(--terra); color:white; border:none; border-radius:12px; font-size:12px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; margin-top:8px; }
+  .login-error { color:var(--red); font-size:12px; margin-top:8px; text-align:center; display:none; }
+
+  /* ADMIN LAYOUT */
+  #admin-page { display:none; }
+  .sidebar { position:fixed; left:0; top:0; bottom:0; width:220px; background:var(--deep); padding:32px 20px; }
+  .sidebar-logo { font-size:22px; letter-spacing:6px; color:var(--sand); margin-bottom:4px; }
+  .sidebar-sub { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:40px; }
+  .sidebar-nav { display:flex; flex-direction:column; gap:4px; }
+  .nav-item { padding:10px 14px; border-radius:10px; color:rgba(242,228,208,.6); font-size:12px; letter-spacing:1px; cursor:pointer; transition:background .2s, color .2s; }
+  .nav-item:hover, .nav-item.active { background:rgba(196,112,74,.2); color:var(--terra); }
+  .sidebar-logout { position:absolute; bottom:24px; left:20px; right:20px; padding:10px; border-radius:10px; background:rgba(255,255,255,.05); color:rgba(242,228,208,.4); font-size:11px; letter-spacing:1px; cursor:pointer; text-align:center; border:none; font-family:'Outfit',sans-serif; }
+  .sidebar-logout:hover { background:rgba(192,57,43,.2); color:#e74c3c; }
+
+  .main { margin-left:220px; padding:40px; }
+  .page-title { font-size:24px; font-weight:400; margin-bottom:4px; }
+  .page-sub { font-size:12px; color:var(--muted); letter-spacing:1px; margin-bottom:32px; }
+
+  /* STATS */
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:36px; }
+  .stat-card { background:white; border-radius:16px; padding:24px; }
+  .stat-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .stat-value { font-size:28px; font-weight:500; color:var(--deep); }
+  .stat-value.terra { color:var(--terra); }
+  .stat-value.red { color:var(--red); }
+
+  /* TABLES */
+  .section { background:white; border-radius:16px; padding:24px; margin-bottom:24px; }
+  .section-title { font-size:14px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:8px 12px; text-align:left; border-bottom:1px solid var(--sand); }
+  td { padding:12px; border-bottom:1px solid var(--warm); font-size:13px; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--warm); }
+
+  /* STATUS BADGES */
+  .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-weight:500; }
+  .badge.PENDING  { background:#fef3cd; color:#856404; }
+  .badge.PAID     { background:#d1e7dd; color:#0a3622; }
+  .badge.SHIPPED  { background:#cfe2ff; color:#084298; }
+  .badge.DELIVERED{ background:#d1e7dd; color:#0a3622; }
+  .badge.CANCELLED{ background:#f8d7da; color:#842029; }
+
+  /* CONTROLS */
+  select.status-select { border:1px solid var(--sand); border-radius:8px; padding:4px 8px; font-family:'Outfit',sans-serif; font-size:12px; background:white; cursor:pointer; }
+  input.qty-input { width:60px; border:1px solid var(--sand); border-radius:8px; padding:4px 8px; font-family:'Outfit',sans-serif; font-size:12px; text-align:center; }
+  .btn-save { padding:4px 12px; background:var(--terra); color:white; border:none; border-radius:8px; font-size:11px; cursor:pointer; font-family:'Outfit',sans-serif; }
+  .btn-save:hover { background:var(--deep); }
+
+  /* LOW STOCK */
+  .low-stock-alert { background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:6px 12px; font-size:11px; color:#856404; display:inline-block; }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  .loading { color:var(--muted); font-size:13px; padding:20px; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- PAGE LOGIN -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">YARAÏ</div>
+    <div class="login-sub">Administration</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="admin@yarai.sn">
+    </div>
+    <div class="login-field">
+      <label>Mot de passe</label>
+      <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Connexion</button>
+    <div class="login-error" id="login-error">Identifiants incorrects</div>
+  </div>
+</div>
+
+<!-- PAGE ADMIN -->
+<div id="admin-page">
+  <div class="sidebar">
+    <div class="sidebar-logo">YARAÏ</div>
+    <div class="sidebar-sub">Admin</div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
+      <div class="nav-item" onclick="showTab('orders',this)">📦 Commandes</div>
+      <div class="nav-item" onclick="showTab('stock',this)">🗂 Stock</div>
+    </nav>
+    <button class="sidebar-logout" onclick="logout()">Déconnexion</button>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Vue d'ensemble — YARAÏ</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Commandes totales</div><div class="stat-value" id="stat-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">Commandes payées</div><div class="stat-value terra" id="stat-paid">—</div></div>
+        <div class="stat-card"><div class="stat-label">Chiffre d'affaires</div><div class="stat-value terra" id="stat-revenue">—</div></div>
+        <div class="stat-card"><div class="stat-label">Stock faible (&le;2)</div><div class="stat-value red" id="stat-lowstock">—</div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Alertes stock faible</div>
+        <div id="lowstock-list"><div class="loading">Chargement…</div></div>
+      </div>
+    </div>
+
+    <!-- COMMANDES -->
+    <div id="tab-orders" class="tab-content">
+      <div class="page-title">Commandes</div>
+      <div class="page-sub">Gérer et suivre les commandes</div>
+      <div class="section">
+        <div class="section-title">Toutes les commandes</div>
+        <div id="orders-list"><div class="loading">Chargement…</div></div>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="tab-stock" class="tab-content">
+      <div class="page-title">Gestion du stock</div>
+      <div class="page-sub">Modifier les quantités disponibles</div>
+      <div class="section">
+        <div class="section-title">Stock par variante & taille</div>
+        <div id="stock-list"><div class="loading">Chargement…</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:3000"
+  : "";
+
+const fmt = n => parseInt(n).toLocaleString("fr") + " FCFA";
+let token = localStorage.getItem("yarai_admin_token");
+
+// ── Auth ──────────────────────────────────────────────────────
+async function doLogin() {
+  const email    = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value;
+  const errEl    = document.getElementById("login-error");
+  errEl.style.display = "none";
+
+  const res = await fetch(`${API}/api/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) { errEl.style.display = "block"; return; }
+  const data = await res.json();
+  token = data.token;
+  localStorage.setItem("yarai_admin_token", token);
+  showAdmin();
+}
+
+function logout() {
+  localStorage.removeItem("yarai_admin_token");
+  token = null;
+  document.getElementById("admin-page").style.display = "none";
+  document.getElementById("login-page").style.display  = "flex";
+}
+
+function authHeaders() {
+  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+}
+
+// ── Navigation ────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  btn.classList.add("active");
+  if (name === "dashboard") loadDashboard();
+  if (name === "orders")    loadOrders();
+  if (name === "stock")     loadStock();
+}
+
+function showAdmin() {
+  document.getElementById("login-page").style.display  = "none";
+  document.getElementById("admin-page").style.display  = "block";
+  loadDashboard();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+async function loadDashboard() {
+  const res  = await fetch(`${API}/api/admin/dashboard`, { headers: authHeaders() });
+  if (res.status === 401) { logout(); return; }
+  const data = await res.json();
+
+  document.getElementById("stat-total").textContent   = data.totalOrders;
+  document.getElementById("stat-paid").textContent    = data.paidOrders;
+  document.getElementById("stat-revenue").textContent = fmt(data.revenue);
+  document.getElementById("stat-lowstock").textContent= data.lowStock.length;
+
+  const el = document.getElementById("lowstock-list");
+  if (data.lowStock.length === 0) {
+    el.innerHTML = "<div style='color:var(--muted);font-size:13px'>Aucune alerte stock 🎉</div>";
+    return;
+  }
+  el.innerHTML = `<table>
+    <tr><th>Produit</th><th>Variante</th><th>Taille</th><th>Qté restante</th></tr>
+    ${data.lowStock.map(s => `
+    <tr>
+      <td>${s.product.name}</td>
+      <td>${s.variant}</td>
+      <td>${s.size}</td>
+      <td><span class="low-stock-alert">⚠️ ${s.qty} restant${s.qty > 1 ? "s" : ""}</span></td>
+    </tr>`).join("")}
+  </table>`;
+}
+
+// ── Commandes ─────────────────────────────────────────────────
+async function loadOrders() {
+  const res    = await fetch(`${API}/api/admin/orders`, { headers: authHeaders() });
+  if (res.status === 401) { logout(); return; }
+  const orders = await res.json();
+  const el     = document.getElementById("orders-list");
+
+  if (orders.length === 0) {
+    el.innerHTML = "<div class='loading'>Aucune commande pour le moment</div>";
+    return;
+  }
+
+  const statuses = ["PENDING","PAID","SHIPPED","DELIVERED","CANCELLED"];
+  el.innerHTML = `<table>
+    <tr><th>Référence</th><th>Client</th><th>Articles</th><th>Total</th><th>Paiement</th><th>Date</th><th>Statut</th></tr>
+    ${orders.map(o => `
+    <tr>
+      <td><strong>${o.reference}</strong></td>
+      <td>${o.customer.name}<br><span style="color:var(--muted);font-size:11px">${o.customer.email}</span></td>
+      <td>${o.items.map(i => `${i.product.name} (${i.variant}/${i.size} ×${i.qty})`).join("<br>")}</td>
+      <td>${fmt(o.total)}</td>
+      <td>${o.paymentMethod}</td>
+      <td>${new Date(o.createdAt).toLocaleDateString("fr")}</td>
+      <td>
+        <select class="status-select" onchange="updateOrderStatus(${o.id}, this.value)">
+          ${statuses.map(s => `<option value="${s}" ${s===o.status?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </td>
+    </tr>`).join("")}
+  </table>`;
+}
+
+async function updateOrderStatus(id, status) {
+  await fetch(`${API}/api/admin/orders/${id}`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ status }),
+  });
+}
+
+// ── Stock ─────────────────────────────────────────────────────
+async function loadStock() {
+  const res    = await fetch(`${API}/api/admin/stock`, { headers: authHeaders() });
+  if (res.status === 401) { logout(); return; }
+  const stocks = await res.json();
+  const el     = document.getElementById("stock-list");
+
+  el.innerHTML = `<table>
+    <tr><th>Produit</th><th>Variante</th><th>Taille</th><th>Quantité</th><th>Action</th></tr>
+    ${stocks.map(s => `
+    <tr>
+      <td>${s.product.name}</td>
+      <td>${s.variant}</td>
+      <td>${s.size}</td>
+      <td><input class="qty-input" id="qty-${s.id}" type="number" min="0" value="${s.qty}"></td>
+      <td><button class="btn-save" onclick="saveStock(${s.id})">Sauver</button></td>
+    </tr>`).join("")}
+  </table>`;
+}
+
+async function saveStock(id) {
+  const qty = document.getElementById("qty-" + id).value;
+  await fetch(`${API}/api/admin/stock/${id}`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ qty }),
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────
+if (token) {
+  showAdmin();
+} else {
+  document.getElementById("login-page").style.display = "flex";
+}
+</script>
+</body>
+</html>
