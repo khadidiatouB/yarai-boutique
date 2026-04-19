@@ -2,312 +2,650 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YARAÏ — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YARAÏ — Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --terra:#C4704A; --deep:#261A12; --sand:#F2E4D0; --warm:#FBF6EE; --muted:#957860; --green:#2d7a4f; --red:#c0392b; }
-  *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Outfit',sans-serif; background:var(--warm); color:var(--deep); font-size:14px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* LOGIN */
-  #login-page { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-  .login-box { background:white; border-radius:24px; padding:48px; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(0,0,0,.08); }
-  .login-logo { font-family:'Outfit',sans-serif; font-size:28px; letter-spacing:8px; color:var(--terra); margin-bottom:8px; }
-  .login-sub { font-size:12px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:32px; }
-  .login-field { margin-bottom:16px; }
-  .login-field label { display:block; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-  .login-field input { width:100%; padding:12px 16px; border:1px solid var(--sand); border-radius:12px; font-family:'Outfit',sans-serif; font-size:14px; outline:none; }
-  .login-field input:focus { border-color:var(--terra); }
-  .btn-login { width:100%; padding:14px; background:var(--terra); color:white; border:none; border-radius:12px; font-size:12px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; margin-top:8px; }
-  .login-error { color:var(--red); font-size:12px; margin-top:8px; text-align:center; display:none; }
+:root {
+  --black:   #0A0A0A;
+  --white:   #FFFFFF;
+  --bg:      #FAFAFA;
+  --bg-alt:  #F4F1ED;
+  --accent:  #C8A882;
+  --muted:   #6B6B6B;
+  --border:  #E8E4DF;
+  --sidebar-w: 220px;
+}
 
-  /* ADMIN LAYOUT */
-  #admin-page { display:none; }
-  .sidebar { position:fixed; left:0; top:0; bottom:0; width:220px; background:var(--deep); padding:32px 20px; }
-  .sidebar-logo { font-size:22px; letter-spacing:6px; color:var(--sand); margin-bottom:4px; }
-  .sidebar-sub { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:40px; }
-  .sidebar-nav { display:flex; flex-direction:column; gap:4px; }
-  .nav-item { padding:10px 14px; border-radius:10px; color:rgba(242,228,208,.6); font-size:12px; letter-spacing:1px; cursor:pointer; transition:background .2s, color .2s; }
-  .nav-item:hover, .nav-item.active { background:rgba(196,112,74,.2); color:var(--terra); }
-  .sidebar-logout { position:absolute; bottom:24px; left:20px; right:20px; padding:10px; border-radius:10px; background:rgba(255,255,255,.05); color:rgba(242,228,208,.4); font-size:11px; letter-spacing:1px; cursor:pointer; text-align:center; border:none; font-family:'Outfit',sans-serif; }
-  .sidebar-logout:hover { background:rgba(192,57,43,.2); color:#e74c3c; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-alt);
+  color: var(--black);
+  min-height: 100vh;
+  font-size: 14px;
+}
 
-  .main { margin-left:220px; padding:40px; }
-  .page-title { font-size:24px; font-weight:400; margin-bottom:4px; }
-  .page-sub { font-size:12px; color:var(--muted); letter-spacing:1px; margin-bottom:32px; }
+/* ── LOGIN ────────────────────────────────────────────────── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  /* STATS */
-  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:36px; }
-  .stat-card { background:white; border-radius:16px; padding:24px; }
-  .stat-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-  .stat-value { font-size:28px; font-weight:500; color:var(--deep); }
-  .stat-value.terra { color:var(--terra); }
-  .stat-value.red { color:var(--red); }
+.login-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 52px 44px;
+  width: 100%;
+  max-width: 400px;
+}
 
-  /* TABLES */
-  .section { background:white; border-radius:16px; padding:24px; margin-bottom:24px; }
-  .section-title { font-size:14px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
-  table { width:100%; border-collapse:collapse; }
-  th { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:8px 12px; text-align:left; border-bottom:1px solid var(--sand); }
-  td { padding:12px; border-bottom:1px solid var(--warm); font-size:13px; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:var(--warm); }
+.login-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  letter-spacing: 8px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.login-sub {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+.login-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.login-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 12px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  transition: border-color .2s;
+}
+.login-input:focus { border-color: var(--black); }
+.login-btn {
+  width: 100%;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 15px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: opacity .2s;
+}
+.login-btn:hover { opacity: .85; }
+.login-btn:disabled { opacity: .5; cursor: not-allowed; }
+.login-error {
+  background: #FEE2E2;
+  color: #991B1B;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+  border-radius: 4px;
+  display: none;
+}
+.login-error.show { display: block; }
 
-  /* STATUS BADGES */
-  .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:10px; letter-spacing:1px; text-transform:uppercase; font-weight:500; }
-  .badge.PENDING  { background:#fef3cd; color:#856404; }
-  .badge.PAID     { background:#d1e7dd; color:#0a3622; }
-  .badge.SHIPPED  { background:#cfe2ff; color:#084298; }
-  .badge.DELIVERED{ background:#d1e7dd; color:#0a3622; }
-  .badge.CANCELLED{ background:#f8d7da; color:#842029; }
+/* ── ADMIN SHELL ──────────────────────────────────────────── */
+#admin-shell { display: none; min-height: 100vh; }
+#admin-shell.active { display: flex; }
 
-  /* CONTROLS */
-  select.status-select { border:1px solid var(--sand); border-radius:8px; padding:4px 8px; font-family:'Outfit',sans-serif; font-size:12px; background:white; cursor:pointer; }
-  input.qty-input { width:60px; border:1px solid var(--sand); border-radius:8px; padding:4px 8px; font-family:'Outfit',sans-serif; font-size:12px; text-align:center; }
-  .btn-save { padding:4px 12px; background:var(--terra); color:white; border:none; border-radius:8px; font-size:11px; cursor:pointer; font-family:'Outfit',sans-serif; }
-  .btn-save:hover { background:var(--deep); }
+/* ── SIDEBAR ──────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--black);
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+.sb-brand { padding: 28px 24px 22px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.sb-brand-name { font-family: 'Playfair Display', serif; font-size: 18px; letter-spacing: 6px; }
+.sb-brand-role { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-top: 4px; }
+.sb-nav { flex: 1; padding: 20px 0; }
+.sb-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 24px;
+  font-size: 13px; color: rgba(255,255,255,.55);
+  cursor: pointer; transition: all .15s;
+  border-left: 3px solid transparent;
+}
+.sb-item:hover { color: var(--white); background: rgba(255,255,255,.04); }
+.sb-item.active { color: var(--white); border-left-color: var(--accent); background: rgba(255,255,255,.07); }
+.sb-icon { font-size: 15px; width: 18px; }
+.sb-footer { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,.08); }
+.sb-admin-email { font-size: 11px; color: rgba(255,255,255,.35); margin-bottom: 12px; word-break: break-all; }
+.sb-logout {
+  background: none; border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.5); width: 100%;
+  padding: 9px; font-family: 'DM Sans', sans-serif;
+  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; border-radius: 4px; transition: all .2s;
+}
+.sb-logout:hover { border-color: var(--white); color: var(--white); }
 
-  /* LOW STOCK */
-  .low-stock-alert { background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:6px 12px; font-size:11px; color:#856404; display:inline-block; }
+/* ── MAIN ─────────────────────────────────────────────────── */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; }
+.topbar-meta { font-size: 12px; color: var(--muted); }
+.content { padding: 32px; flex: 1; }
 
-  .tab-content { display:none; }
-  .tab-content.active { display:block; }
-  .loading { color:var(--muted); font-size:13px; padding:20px; text-align:center; }
+/* ── PANELS ───────────────────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── KPI GRID ─────────────────────────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+.kpi-card { background: var(--white); border: 1px solid var(--border); padding: 24px; }
+.kpi-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.kpi-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; }
+.kpi-accent { color: var(--accent); }
+.kpi-warn   { color: #B45309; }
+
+/* ── SECTION ──────────────────────────────────────────────── */
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; font-weight: 400;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── TABLE ────────────────────────────────────────────────── */
+.table-wrap { background: var(--white); border: 1px solid var(--border); overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+  padding: 13px 16px; border-bottom: 1px solid var(--border);
+  white-space: nowrap; background: var(--bg);
+}
+td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-alt); }
+
+/* ── BADGES ───────────────────────────────────────────────── */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.badge-PENDING   { background: #F3F4F6; color: #374151; }
+.badge-PAID      { background: #D1FAE5; color: #065F46; }
+.badge-SHIPPED   { background: #DBEAFE; color: #1E40AF; }
+.badge-DELIVERED { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+.badge-CANCELLED { background: #FEE2E2; color: #991B1B; }
+
+/* ── FILTER BAR ───────────────────────────────────────────── */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-select, .filter-input {
+  border: 1px solid var(--border); background: var(--white);
+  padding: 8px 12px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; outline: none; border-radius: 4px;
+  transition: border-color .2s;
+}
+.filter-select:focus, .filter-input:focus { border-color: var(--black); }
+.refresh-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 8px 14px; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer; border-radius: 4px;
+  transition: all .2s; margin-left: auto;
+}
+.refresh-btn:hover { border-color: var(--black); color: var(--black); }
+
+/* ── CONTROLS ─────────────────────────────────────────────── */
+.status-select {
+  border: 1px solid var(--border); background: var(--bg);
+  padding: 6px 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; outline: none; border-radius: 4px;
+  cursor: pointer; transition: border-color .2s; width: 130px;
+}
+.status-select:focus { border-color: var(--black); }
+
+.field-input {
+  border: 1px solid var(--border); background: var(--bg);
+  padding: 6px 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; outline: none; border-radius: 4px;
+  transition: border-color .2s; width: 140px;
+}
+.field-input:focus { border-color: var(--black); }
+.field-input.wide { width: 180px; }
+
+.qty-input {
+  border: 1px solid var(--border); background: var(--bg);
+  padding: 6px 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; text-align: center;
+  outline: none; border-radius: 4px; width: 70px;
+}
+.qty-input:focus { border-color: var(--black); }
+.qty-low { color: #991B1B; font-weight: 600; }
+
+.btn { display: inline-block; border: none; padding: 7px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; border-radius: 4px; transition: opacity .15s; white-space: nowrap; }
+.btn:hover { opacity: .8; }
+.btn-black { background: var(--black); color: var(--white); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--black); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+
+/* ── ALERT BOX ────────────────────────────────────────────── */
+.alert-box { background: #FFFBEB; border: 1px solid #FCD34D; padding: 16px 20px; margin-bottom: 24px; border-radius: 4px; }
+.alert-title { font-size: 12px; font-weight: 600; color: #B45309; margin-bottom: 8px; }
+.alert-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.alert-tag { background: #FEF3C7; border: 1px solid #FCD34D; color: #92400E; padding: 3px 10px; border-radius: 12px; font-size: 11px; }
+
+/* ── TOAST ────────────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--black); color: var(--white);
+  padding: 12px 20px; border-radius: 6px; font-size: 13px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .25s, transform .25s;
+  z-index: 9999; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── MISC ─────────────────────────────────────────────────── */
+.empty { text-align: center; padding: 56px 24px; color: var(--muted); }
+.empty-title { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 8px; }
+.loading-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+.sub-text { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.order-items { font-size: 11px; color: var(--muted); line-height: 1.7; }
 </style>
 </head>
 <body>
 
-<!-- PAGE LOGIN -->
-<div id="login-page">
-  <div class="login-box">
-    <div class="login-logo">YARAÏ</div>
-    <div class="login-sub">Administration</div>
-    <div class="login-field">
-      <label>Email</label>
-      <input type="email" id="login-email" placeholder="admin@yarai.sn">
-    </div>
-    <div class="login-field">
-      <label>Mot de passe</label>
-      <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <button class="btn-login" onclick="doLogin()">Connexion</button>
-    <div class="login-error" id="login-error">Identifiants incorrects</div>
+<!-- ══════════════════════ LOGIN ══════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">YARAÏ</div>
+    <div class="login-sub">Espace administration</div>
+    <div class="login-error" id="login-error"></div>
+    <label class="login-label">Email</label>
+    <input class="login-input" type="email" id="admin-email" placeholder="admin@yarai.com" autocomplete="email">
+    <label class="login-label">Mot de passe</label>
+    <input class="login-input" type="password" id="admin-password" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" id="login-btn" onclick="adminLogin()">Accéder au tableau de bord →</button>
   </div>
 </div>
 
-<!-- PAGE ADMIN -->
-<div id="admin-page">
-  <div class="sidebar">
-    <div class="sidebar-logo">YARAÏ</div>
-    <div class="sidebar-sub">Admin</div>
-    <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
-      <div class="nav-item" onclick="showTab('orders',this)">📦 Commandes</div>
-      <div class="nav-item" onclick="showTab('stock',this)">🗂 Stock</div>
+<!-- ══════════════════════ SHELL ══════════════════════ -->
+<div id="admin-shell">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-name">YARAÏ</div>
+      <div class="sb-brand-role">Administration</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-item active" id="nav-dashboard" onclick="showPanel('dashboard')">
+        <span class="sb-icon">▣</span> Tableau de bord
+      </div>
+      <div class="sb-item" id="nav-orders" onclick="showPanel('orders')">
+        <span class="sb-icon">▤</span> Commandes
+      </div>
+      <div class="sb-item" id="nav-stock" onclick="showPanel('stock')">
+        <span class="sb-icon">▥</span> Stock
+      </div>
     </nav>
-    <button class="sidebar-logout" onclick="logout()">Déconnexion</button>
-  </div>
+    <div class="sb-footer">
+      <div class="sb-admin-email" id="admin-email-label"></div>
+      <button class="sb-logout" onclick="adminLogout()">Déconnexion</button>
+    </div>
+  </aside>
 
   <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Tableau de bord</div>
+      <div class="topbar-meta" id="topbar-meta"></div>
+    </header>
 
-    <!-- DASHBOARD -->
-    <div id="tab-dashboard" class="tab-content active">
-      <div class="page-title">Dashboard</div>
-      <div class="page-sub">Vue d'ensemble — YARAÏ</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Commandes totales</div><div class="stat-value" id="stat-total">—</div></div>
-        <div class="stat-card"><div class="stat-label">Commandes payées</div><div class="stat-value terra" id="stat-paid">—</div></div>
-        <div class="stat-card"><div class="stat-label">Chiffre d'affaires</div><div class="stat-value terra" id="stat-revenue">—</div></div>
-        <div class="stat-card"><div class="stat-label">Stock faible (&le;2)</div><div class="stat-value red" id="stat-lowstock">—</div></div>
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Chiffre d'affaires</div><div class="kpi-value kpi-accent" id="kpi-revenue">—</div></div>
+          <div class="kpi-card"><div class="kpi-label">Commandes payées</div><div class="kpi-value" id="kpi-paid">—</div></div>
+          <div class="kpi-card"><div class="kpi-label">Total commandes</div><div class="kpi-value" id="kpi-total">—</div></div>
+          <div class="kpi-card"><div class="kpi-label">Alertes stock</div><div class="kpi-value kpi-warn" id="kpi-lowstock">—</div></div>
+        </div>
+        <div id="low-stock-alert"></div>
+        <div class="section-title">Dernières commandes</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Référence</th><th>Date</th><th>Client</th><th>Total</th><th>Statut</th><th>Paiement</th></tr></thead>
+            <tbody id="recent-orders"></tbody>
+          </table>
+        </div>
       </div>
-      <div class="section">
-        <div class="section-title">Alertes stock faible</div>
-        <div id="lowstock-list"><div class="loading">Chargement…</div></div>
+
+      <!-- ── COMMANDES ── -->
+      <div class="panel" id="panel-orders">
+        <div class="filter-bar">
+          <select class="filter-select" id="filter-status" onchange="filterOrders()">
+            <option value="">Tous les statuts</option>
+            <option value="PENDING">En attente</option>
+            <option value="PAID">Payée</option>
+            <option value="SHIPPED">Expédiée</option>
+            <option value="DELIVERED">Livrée</option>
+            <option value="CANCELLED">Annulée</option>
+          </select>
+          <input class="filter-input" id="filter-search" type="text" placeholder="Référence ou client…" oninput="filterOrders()">
+          <button class="refresh-btn" onclick="loadOrders()">↻ Actualiser</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Référence</th><th>Date</th><th>Client</th><th>Articles</th>
+                <th>Total</th><th>Statut</th><th>N° suivi</th><th>Notes livraison</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- ── STOCK ── -->
+      <div class="panel" id="panel-stock">
+        <div class="filter-bar">
+          <input class="filter-input" id="filter-product" type="text" placeholder="Filtrer par produit…" oninput="filterStock()">
+          <select class="filter-select" id="filter-low" onchange="filterStock()">
+            <option value="">Tout le stock</option>
+            <option value="low">Stock faible (≤ 2)</option>
+            <option value="zero">Rupture (= 0)</option>
+          </select>
+          <button class="refresh-btn" onclick="loadStock()">↻ Actualiser</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Produit</th><th>Variante</th><th>Taille</th><th>Quantité</th><th></th></tr></thead>
+            <tbody id="stock-body"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
-
-    <!-- COMMANDES -->
-    <div id="tab-orders" class="tab-content">
-      <div class="page-title">Commandes</div>
-      <div class="page-sub">Gérer et suivre les commandes</div>
-      <div class="section">
-        <div class="section-title">Toutes les commandes</div>
-        <div id="orders-list"><div class="loading">Chargement…</div></div>
-      </div>
-    </div>
-
-    <!-- STOCK -->
-    <div id="tab-stock" class="tab-content">
-      <div class="page-title">Gestion du stock</div>
-      <div class="page-sub">Modifier les quantités disponibles</div>
-      <div class="section">
-        <div class="section-title">Stock par variante & taille</div>
-        <div id="stock-list"><div class="loading">Chargement…</div></div>
-      </div>
-    </div>
-
   </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
-const API = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:3000"
-  : "";
+/* ── State ── */
+let adminToken = localStorage.getItem("yarai_admin_token") || "";
+let allOrders  = [];
+let allStock   = [];
 
-const fmt = n => parseInt(n).toLocaleString("fr") + " FCFA";
-let token = localStorage.getItem("yarai_admin_token");
-
-// ── Auth ──────────────────────────────────────────────────────
-async function doLogin() {
-  const email    = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value;
-  const errEl    = document.getElementById("login-error");
-  errEl.style.display = "none";
-
-  const res = await fetch(`${API}/api/admin/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+/* ── Init ── */
+(function() {
+  if (adminToken) enterShell();
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && document.getElementById("login-screen").style.display !== "none") adminLogin();
   });
+})();
 
-  if (!res.ok) { errEl.style.display = "block"; return; }
-  const data = await res.json();
-  token = data.token;
-  localStorage.setItem("yarai_admin_token", token);
-  showAdmin();
+/* ══════════════════════ LOGIN ══════════════════════ */
+async function adminLogin() {
+  const email    = document.getElementById("admin-email").value.trim();
+  const password = document.getElementById("admin-password").value;
+  const errEl    = document.getElementById("login-error");
+  const btn      = document.getElementById("login-btn");
+  errEl.classList.remove("show");
+  if (!email || !password) { showLoginErr("Email et mot de passe requis"); return; }
+  btn.disabled = true; btn.textContent = "Connexion…";
+  try {
+    const res  = await fetch("/api/admin/login", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email,password}) });
+    const data = await res.json();
+    if (!res.ok) { showLoginErr(data.error || "Identifiants incorrects"); return; }
+    adminToken = data.token;
+    localStorage.setItem("yarai_admin_token", adminToken);
+    enterShell(email);
+  } catch { showLoginErr("Erreur réseau. Réessayez."); }
+  finally { btn.disabled = false; btn.textContent = "Accéder au tableau de bord →"; }
 }
 
-function logout() {
+function showLoginErr(msg) {
+  const el = document.getElementById("login-error");
+  el.textContent = msg; el.classList.add("show");
+}
+
+function adminLogout() {
+  adminToken = "";
   localStorage.removeItem("yarai_admin_token");
-  token = null;
-  document.getElementById("admin-page").style.display = "none";
-  document.getElementById("login-page").style.display  = "flex";
+  document.getElementById("admin-shell").classList.remove("active");
+  document.getElementById("login-screen").style.display = "flex";
 }
 
-function authHeaders() {
-  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+function enterShell(email) {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-shell").classList.add("active");
+  try {
+    const p = JSON.parse(atob(adminToken.split(".")[1]));
+    document.getElementById("admin-email-label").textContent = p.email || email || "";
+  } catch {}
+  loadDashboard();
 }
 
-// ── Navigation ────────────────────────────────────────────────
-function showTab(name, btn) {
-  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-  document.getElementById("tab-" + name).classList.add("active");
-  btn.classList.add("active");
+/* ══════════════════════ NAV ══════════════════════ */
+const PANEL_TITLES = { dashboard:"Tableau de bord", orders:"Commandes", stock:"Stock" };
+
+function showPanel(name) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".sb-item").forEach(i => i.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+  document.getElementById("nav-"   + name).classList.add("active");
+  document.getElementById("topbar-title").textContent = PANEL_TITLES[name];
   if (name === "dashboard") loadDashboard();
   if (name === "orders")    loadOrders();
   if (name === "stock")     loadStock();
 }
 
-function showAdmin() {
-  document.getElementById("login-page").style.display  = "none";
-  document.getElementById("admin-page").style.display  = "block";
-  loadDashboard();
+/* ══════════════════════ HELPERS ══════════════════════ */
+function authH() { return { "Content-Type":"application/json", "Authorization":"Bearer " + adminToken }; }
+
+function fmt(n) { return Number(n).toLocaleString("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"}); }
+
+function statusLabel(s) {
+  return {PENDING:"En attente",PAID:"Payée",SHIPPED:"Expédiée",DELIVERED:"Livrée",CANCELLED:"Annulée"}[s] || s;
 }
 
-// ── Dashboard ─────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+function esc(str) {
+  return String(str||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+async function apiFetch(path, opts) {
+  const res = await fetch(path, { headers: authH(), ...opts });
+  if (res.status === 401) { adminLogout(); return null; }
+  return res;
+}
+
+/* ══════════════════════ DASHBOARD ══════════════════════ */
 async function loadDashboard() {
-  const res  = await fetch(`${API}/api/admin/dashboard`, { headers: authHeaders() });
-  if (res.status === 401) { logout(); return; }
-  const data = await res.json();
+  const r1 = await apiFetch("/api/admin/dashboard");
+  if (!r1) return;
+  const data = await r1.json();
 
-  document.getElementById("stat-total").textContent   = data.totalOrders;
-  document.getElementById("stat-paid").textContent    = data.paidOrders;
-  document.getElementById("stat-revenue").textContent = fmt(data.revenue);
-  document.getElementById("stat-lowstock").textContent= data.lowStock.length;
+  document.getElementById("kpi-revenue").textContent  = fmt(data.revenue);
+  document.getElementById("kpi-paid").textContent     = data.paidOrders;
+  document.getElementById("kpi-total").textContent    = data.totalOrders;
+  document.getElementById("kpi-lowstock").textContent = data.lowStock.length;
+  document.getElementById("topbar-meta").textContent  =
+    "Actualisé à " + new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
 
-  const el = document.getElementById("lowstock-list");
-  if (data.lowStock.length === 0) {
-    el.innerHTML = "<div style='color:var(--muted);font-size:13px'>Aucune alerte stock 🎉</div>";
+  const alertEl = document.getElementById("low-stock-alert");
+  if (data.lowStock.length > 0) {
+    alertEl.innerHTML = `<div class="alert-box"><div class="alert-title">⚠ ${data.lowStock.length} article(s) en stock faible</div><div class="alert-items">${data.lowStock.map(s=>`<span class="alert-tag">${esc(s.product.name)} · ${esc(s.variant)} · ${esc(s.size)} = ${s.qty}</span>`).join("")}</div></div>`;
+  } else { alertEl.innerHTML = ""; }
+
+  const r2 = await apiFetch("/api/admin/orders");
+  if (!r2) return;
+  const orders = await r2.json();
+  const tbody = document.getElementById("recent-orders");
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-title">Aucune commande</div></div></td></tr>`;
     return;
   }
-  el.innerHTML = `<table>
-    <tr><th>Produit</th><th>Variante</th><th>Taille</th><th>Qté restante</th></tr>
-    ${data.lowStock.map(s => `
+  tbody.innerHTML = orders.slice(0,8).map(o => `
     <tr>
-      <td>${s.product.name}</td>
-      <td>${s.variant}</td>
-      <td>${s.size}</td>
-      <td><span class="low-stock-alert">⚠️ ${s.qty} restant${s.qty > 1 ? "s" : ""}</span></td>
-    </tr>`).join("")}
-  </table>`;
+      <td><strong>${esc(o.reference)}</strong></td>
+      <td>${fmtDate(o.createdAt)}</td>
+      <td>${esc(o.customer.name)}<div class="sub-text">${esc(o.customer.email)}</div></td>
+      <td>${fmt(o.total)}</td>
+      <td><span class="badge badge-${o.status}">${statusLabel(o.status)}</span></td>
+      <td class="sub-text">${esc(o.paymentMethod)}</td>
+    </tr>`).join("");
 }
 
-// ── Commandes ─────────────────────────────────────────────────
+/* ══════════════════════ COMMANDES ══════════════════════ */
 async function loadOrders() {
-  const res    = await fetch(`${API}/api/admin/orders`, { headers: authHeaders() });
-  if (res.status === 401) { logout(); return; }
-  const orders = await res.json();
-  const el     = document.getElementById("orders-list");
+  const tbody = document.getElementById("orders-body");
+  tbody.innerHTML = `<tr><td colspan="9"><div class="loading-state">Chargement…</div></td></tr>`;
+  const r = await apiFetch("/api/admin/orders");
+  if (!r) return;
+  allOrders = await r.json();
+  filterOrders();
+}
 
-  if (orders.length === 0) {
-    el.innerHTML = "<div class='loading'>Aucune commande pour le moment</div>";
+function filterOrders() {
+  const sf = document.getElementById("filter-status").value;
+  const qf = (document.getElementById("filter-search").value || "").toLowerCase();
+  let list = allOrders;
+  if (sf) list = list.filter(o => o.status === sf);
+  if (qf) list = list.filter(o =>
+    o.reference.toLowerCase().includes(qf) ||
+    o.customer.name.toLowerCase().includes(qf) ||
+    o.customer.email.toLowerCase().includes(qf)
+  );
+  renderOrders(list);
+}
+
+function renderOrders(orders) {
+  const tbody = document.getElementById("orders-body");
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-title">Aucune commande</div><div class="empty-sub">Modifiez vos filtres</div></div></td></tr>`;
     return;
   }
-
-  const statuses = ["PENDING","PAID","SHIPPED","DELIVERED","CANCELLED"];
-  el.innerHTML = `<table>
-    <tr><th>Référence</th><th>Client</th><th>Articles</th><th>Total</th><th>Paiement</th><th>Date</th><th>Statut</th></tr>
-    ${orders.map(o => `
-    <tr>
-      <td><strong>${o.reference}</strong></td>
-      <td>${o.customer.name}<br><span style="color:var(--muted);font-size:11px">${o.customer.email}</span></td>
-      <td>${o.items.map(i => `${i.product.name} (${i.variant}/${i.size} ×${i.qty})`).join("<br>")}</td>
-      <td>${fmt(o.total)}</td>
-      <td>${o.paymentMethod}</td>
-      <td>${new Date(o.createdAt).toLocaleDateString("fr")}</td>
+  tbody.innerHTML = orders.map(o => {
+    const items = o.items.map(i => `${esc(i.product?.name||i.productId)} ${esc(i.variant)} / ${esc(i.size)} ×${i.qty}`).join("<br>");
+    return `<tr>
       <td>
-        <select class="status-select" onchange="updateOrderStatus(${o.id}, this.value)">
-          ${statuses.map(s => `<option value="${s}" ${s===o.status?"selected":""}>${s}</option>`).join("")}
+        <strong>${esc(o.reference)}</strong>
+        <div class="sub-text">${esc(o.customer.phone||"")}</div>
+        <div class="sub-text">${esc(o.customer.city||"")} ${esc(o.customer.country||"")}</div>
+      </td>
+      <td style="white-space:nowrap">${fmtDate(o.createdAt)}</td>
+      <td>${esc(o.customer.name)}<div class="sub-text">${esc(o.customer.email)}</div></td>
+      <td class="order-items">${items}</td>
+      <td style="font-weight:500;white-space:nowrap">${fmt(o.total)}</td>
+      <td>
+        <select class="status-select" id="status-${o.id}">
+          ${["PENDING","PAID","SHIPPED","DELIVERED","CANCELLED"].map(s=>`<option value="${s}" ${s===o.status?"selected":""}>${statusLabel(s)}</option>`).join("")}
         </select>
       </td>
-    </tr>`).join("")}
-  </table>`;
+      <td><input class="field-input" id="tracking-${o.id}" value="${esc(o.trackingNumber||"")}" placeholder="DHL-XXXXXXX"></td>
+      <td><input class="field-input wide" id="notes-${o.id}" value="${esc(o.deliveryNotes||"")}" placeholder="Instructions…"></td>
+      <td><button class="btn btn-black btn-sm" onclick="saveOrder(${o.id})">Sauver</button></td>
+    </tr>`;
+  }).join("");
 }
 
-async function updateOrderStatus(id, status) {
-  await fetch(`${API}/api/admin/orders/${id}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-    body: JSON.stringify({ status }),
-  });
+async function saveOrder(id) {
+  const status         = document.getElementById("status-"   + id)?.value;
+  const trackingNumber = document.getElementById("tracking-" + id)?.value.trim();
+  const deliveryNotes  = document.getElementById("notes-"    + id)?.value.trim();
+  const r = await apiFetch(`/api/admin/orders/${id}`, { method:"PATCH", body:JSON.stringify({status,trackingNumber,deliveryNotes}) });
+  if (!r) return;
+  if (!r.ok) { const d = await r.json(); toast("Erreur : " + (d.error||"inconnue")); return; }
+  const idx = allOrders.findIndex(o => o.id === id);
+  if (idx >= 0) Object.assign(allOrders[idx], {status, trackingNumber, deliveryNotes});
+  toast("Commande mise à jour ✓");
 }
 
-// ── Stock ─────────────────────────────────────────────────────
+/* ══════════════════════ STOCK ══════════════════════ */
 async function loadStock() {
-  const res    = await fetch(`${API}/api/admin/stock`, { headers: authHeaders() });
-  if (res.status === 401) { logout(); return; }
-  const stocks = await res.json();
-  const el     = document.getElementById("stock-list");
+  const tbody = document.getElementById("stock-body");
+  tbody.innerHTML = `<tr><td colspan="5"><div class="loading-state">Chargement…</div></td></tr>`;
+  const r = await apiFetch("/api/admin/stock");
+  if (!r) return;
+  allStock = await r.json();
+  filterStock();
+}
 
-  el.innerHTML = `<table>
-    <tr><th>Produit</th><th>Variante</th><th>Taille</th><th>Quantité</th><th>Action</th></tr>
-    ${stocks.map(s => `
-    <tr>
-      <td>${s.product.name}</td>
-      <td>${s.variant}</td>
-      <td>${s.size}</td>
-      <td><input class="qty-input" id="qty-${s.id}" type="number" min="0" value="${s.qty}"></td>
-      <td><button class="btn-save" onclick="saveStock(${s.id})">Sauver</button></td>
-    </tr>`).join("")}
-  </table>`;
+function filterStock() {
+  const pf = (document.getElementById("filter-product").value || "").toLowerCase();
+  const lf = document.getElementById("filter-low").value;
+  let list = allStock;
+  if (pf) list = list.filter(s => (s.product?.name||s.productId).toLowerCase().includes(pf));
+  if (lf === "low")  list = list.filter(s => s.qty <= 2);
+  if (lf === "zero") list = list.filter(s => s.qty === 0);
+  renderStock(list);
+}
+
+function renderStock(stock) {
+  const tbody = document.getElementById("stock-body");
+  if (!stock.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-title">Aucun article</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = stock.map(s => {
+    const low = s.qty <= 2;
+    return `<tr>
+      <td><strong>${esc(s.product?.name||s.productId)}</strong></td>
+      <td>${esc(s.variant)}</td>
+      <td>${esc(s.size)}</td>
+      <td>
+        <input class="qty-input${low?" qty-low":""}" id="qty-${s.id}" type="number" min="0" value="${s.qty}">
+        ${low ? `<span class="sub-text" style="color:#991B1B;margin-left:6px">${s.qty===0?"Rupture":"Faible"}</span>` : ""}
+      </td>
+      <td><button class="btn btn-ghost btn-sm" onclick="saveStock(${s.id})">Sauver</button></td>
+    </tr>`;
+  }).join("");
 }
 
 async function saveStock(id) {
-  const qty = document.getElementById("qty-" + id).value;
-  await fetch(`${API}/api/admin/stock/${id}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-    body: JSON.stringify({ qty }),
-  });
-}
-
-// ── Init ──────────────────────────────────────────────────────
-if (token) {
-  showAdmin();
-} else {
-  document.getElementById("login-page").style.display = "flex";
+  const qtyEl = document.getElementById("qty-" + id);
+  const qty = parseInt(qtyEl?.value);
+  if (isNaN(qty) || qty < 0) { toast("Quantité invalide"); return; }
+  const r = await apiFetch(`/api/admin/stock/${id}`, { method:"PATCH", body:JSON.stringify({qty}) });
+  if (!r) return;
+  if (!r.ok) { const d = await r.json(); toast("Erreur : " + (d.error||"inconnue")); return; }
+  const idx = allStock.findIndex(s => s.id === id);
+  if (idx >= 0) allStock[idx].qty = qty;
+  qtyEl.className = "qty-input" + (qty <= 2 ? " qty-low" : "");
+  toast("Stock mis à jour ✓");
 }
 </script>
 </body>

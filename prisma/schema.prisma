@@ -39,11 +39,18 @@ model Customer {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
-  phone     String?
-  city      String?
-  address   String?
-  country   String?
-  createdAt DateTime @default(now())
+  password      String?   // null = commande invitée, défini = compte créé
+  verified      Boolean   @default(false)
+  verifyToken   String?   @unique
+  verifyExpiry  DateTime?
+  phone         String?
+  address       String?
+  postalCode    String?
+  city          String?
+  country       String?
+  birthdate     DateTime?
+  loyaltyPoints Int       @default(0)
+  createdAt     DateTime  @default(now())
 
   orders    Order[]
 }
@@ -56,6 +63,8 @@ model Order {
   total         Int                   // en FCFA
   paymentMethod String                // "card", "wave", "orange", "wallet"
   paymentId     String?               // Stripe PaymentIntent ID ou CinetPay transaction_id
+  trackingNumber String?
+  deliveryNotes  String?
   customerId    Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

@@ -82,9 +82,9 @@ app.post("/api/stock/check", async (req, res) => {
 
 app.post("/api/create-payment-intent", async (req, res) => {
   try {
-    const { amount, customer_name, customer_email, customer_phone, items } = req.body;
+    const { amount, orderId, reference, customer_name, customer_email, customer_phone, items } = req.body;
 
-    // Vérifier le stock avant de créer le paiement
+    // Vérifier le stock
     if (items) {
       for (const item of items) {
         const stock = await prisma.stock.findUnique({
@@ -96,14 +96,30 @@ app.post("/api/create-payment-intent", async (req, res) => {
       }
     }
 
+    // amount est en euros (ex: 75 = 75€) → Stripe attend des centimes
+    const amountCents = Math.round(amount * 100);
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount:   Math.round(amount),
-      currency: "xof",
-      description: "Commande YARAÏ",
+      amount:        amountCents,
+      currency:      "eur",
+      description:   "Commande YARAÏ" + (reference ? " — " + reference : ""),
       receipt_email: customer_email,
-      metadata: { customer_name, customer_phone },
+      metadata: {
+        orderId:        String(orderId  || ""),
+        reference:      reference       || "",
+        customer_name,
+        customer_phone: customer_phone  || "",
+      },
       automatic_payment_methods: { enabled: true },
     });
+
+    // Associer le paymentIntent à la commande dès maintenant
+    if (orderId) {
+      await prisma.order.update({
+        where: { id: parseInt(orderId) },
+        data:  { paymentId: paymentIntent.id },
+      }).catch(() => {});
+    }
 
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
@@ -291,6 +307,14 @@ async function confirmOrder(paymentId, method, metadata) {
       });
     }
 
+    // Points fidélité : 1 point par euro dépensé
+    const points = Math.floor(order.total);
+    await prisma.customer.update({
+      where: { id: order.customerId },
+      data:  { loyaltyPoints: { increment: points } },
+    });
+    console.log(`⭐ +${points} points fidélité → client #${order.customerId}`);
+
     // Envoyer emails (client + admin)
     await sendConfirmationEmail(order);
     await sendAdminNotification(order);
@@ -367,7 +391,7 @@ async function sendAdminNotification(order) {
     ).join("\n");
 
     await resend.emails.send({
-      from: `YARAÏ Notifications <commandes@${process.env.EMAIL_DOMAIN || "yarai.sn"}>`,
+      from: "YARAÏ <onboarding@resend.dev>",
       to:   process.env.ADMIN_EMAIL,
       subject: `🛍️ Nouvelle commande ${order.reference} — ${fmt(order.total)}`,
       html: `
@@ -400,6 +424,271 @@ async function sendAdminNotification(order) {
     console.error("Email admin error:", err.message);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   AUTHENTIFICATION CLIENT (JWT)
+══════════════════════════════════════════════════════════════ */
+
+const CUSTOMER_JWT_SECRET = process.env.CUSTOMER_JWT_SECRET || process.env.JWT_SECRET || "yarai_customer_secret";
+const FRONTEND_URL        = process.env.FRONTEND_URL || "http://localhost:3000";
+const crypto              = require("crypto");
+
+function authCustomer(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith("Bearer ")) return res.status(401).json({ error: "Non authentifié" });
+  try {
+    req.customer = jwt.verify(auth.slice(7), CUSTOMER_JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ error: "Session expirée, veuillez vous reconnecter" });
+  }
+}
+
+/* ── Envoi email de vérification ── */
+async function sendVerificationEmail(customer, token) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[DEV] Lien de vérification : ${FRONTEND_URL}/#/verify?token=${token}`);
+    return; // En dev sans Resend, le lien s'affiche dans la console
+  }
+  const { Resend } = require("resend");
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const verifyUrl = `${FRONTEND_URL}/#/verify?token=${token}`;
+  const firstName = customer.name.split(" ")[0];
+
+  await resend.emails.send({
+    from:    "YARAÏ <onboarding@resend.dev>",
+    to:      customer.email,
+    subject: "Vérifiez votre adresse email — YARAÏ",
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#FAFAFA;padding:48px 40px">
+        <h1 style="font-family:Georgia,serif;font-size:22px;letter-spacing:8px;color:#0A0A0A;margin:0 0 6px">YARAÏ</h1>
+        <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#6B6B6B;margin:0 0 40px">simplement belle</p>
+
+        <h2 style="font-family:Georgia,serif;font-size:26px;font-weight:400;color:#0A0A0A;margin:0 0 12px">
+          Bonjour ${firstName},
+        </h2>
+        <p style="font-size:15px;line-height:1.8;color:#6B6B6B;margin:0 0 32px">
+          Merci de vous être inscrite sur YARAÏ.<br>
+          Pour activer votre compte, cliquez sur le lien ci-dessous.<br>
+          <strong style="color:#0A0A0A">Ce lien expire dans 24 heures.</strong>
+        </p>
+
+        <!-- Bouton principal -->
+        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px">
+          <tr>
+            <td style="background:#0A0A0A;padding:16px 36px;border-radius:4px">
+              <a href="${verifyUrl}" style="color:#FFFFFF;text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif;font-weight:600">
+                Vérifier mon adresse email &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Lien texte de secours -->
+        <p style="font-size:13px;color:#6B6B6B;margin:0 0 8px">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :</p>
+        <p style="font-size:12px;margin:0 0 32px;word-break:break-all">
+          <a href="${verifyUrl}" style="color:#0A0A0A">${verifyUrl}</a>
+        </p>
+
+        <p style="font-size:12px;color:#6B6B6B;line-height:1.7;margin:0">
+          Si vous n'avez pas créé de compte YARAÏ, ignorez cet email.
+        </p>
+
+        <hr style="border:none;border-top:1px solid #E8E4DF;margin:36px 0 20px">
+        <p style="font-size:11px;color:#6B6B6B;margin:0">© 2025 YARAÏ — Tous droits réservés</p>
+      </div>
+    `,
+  });
+  console.log(`📧 Email de vérification envoyé à ${customer.email}`);
+}
+
+// POST /api/auth/register
+app.post("/api/auth/register", async (req, res) => {
+  const { name, email, password, phone } = req.body;
+  if (!name || !email || !password)
+    return res.status(400).json({ error: "Nom, email et mot de passe requis" });
+  if (password.length < 8)
+    return res.status(400).json({ error: "Le mot de passe doit contenir au moins 8 caractères" });
+
+  try {
+    const existing = await prisma.customer.findUnique({ where: { email } });
+
+    if (existing?.password && existing.verified)
+      return res.status(409).json({ error: "Un compte existe déjà avec cet email. Connectez-vous." });
+
+    const hash        = await bcrypt.hash(password, 12);
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+    const verifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // +24h
+
+    let customer;
+    if (existing) {
+      customer = await prisma.customer.update({
+        where: { email },
+        data: { name, phone: phone || existing.phone, password: hash, verified: false, verifyToken, verifyExpiry },
+      });
+    } else {
+      customer = await prisma.customer.create({
+        data: { name, email, phone: phone || null, password: hash, verified: false, verifyToken, verifyExpiry },
+      });
+    }
+
+    await sendVerificationEmail(customer, verifyToken);
+
+    res.status(201).json({ needsVerification: true, email: customer.email });
+  } catch (err) {
+    console.error("Register error:", err.message);
+    res.status(500).json({ error: "Erreur serveur. Réessayez." });
+  }
+});
+
+// GET /api/auth/verify?token=xxx
+app.get("/api/auth/verify", async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).json({ error: "Token manquant" });
+
+  try {
+    const customer = await prisma.customer.findUnique({ where: { verifyToken: token } });
+
+    if (!customer)
+      return res.status(400).json({ error: "Lien invalide ou déjà utilisé" });
+    if (customer.verifyExpiry < new Date())
+      return res.status(400).json({ error: "Lien expiré. Créez à nouveau votre compte." });
+
+    const updated = await prisma.customer.update({
+      where: { id: customer.id },
+      data:  { verified: true, verifyToken: null, verifyExpiry: null },
+    });
+
+    const jwtToken = jwt.sign(
+      { id: updated.id, email: updated.email, name: updated.name },
+      CUSTOMER_JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    // Réponse JSON (le frontend gère la redirection via hash)
+    res.json({
+      token: jwtToken,
+      customer: { id: updated.id, name: updated.name, email: updated.email, phone: updated.phone, city: updated.city, address: updated.address, country: updated.country },
+    });
+  } catch (err) {
+    console.error("Verify error:", err.message);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// POST /api/auth/resend — renvoyer l'email de vérification
+app.post("/api/auth/resend", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email requis" });
+  try {
+    const customer = await prisma.customer.findUnique({ where: { email } });
+    if (!customer || !customer.password) return res.status(404).json({ error: "Compte introuvable" });
+    if (customer.verified) return res.status(400).json({ error: "Compte déjà vérifié" });
+
+    const verifyToken  = crypto.randomBytes(32).toString("hex");
+    const verifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await prisma.customer.update({ where: { id: customer.id }, data: { verifyToken, verifyExpiry } });
+    await sendVerificationEmail({ ...customer, verifyToken }, verifyToken);
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/auth/login
+app.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: "Email et mot de passe requis" });
+  try {
+    const customer = await prisma.customer.findUnique({ where: { email } });
+    if (!customer || !customer.password)
+      return res.status(401).json({ error: "Identifiants incorrects" });
+    const valid = await bcrypt.compare(password, customer.password);
+    if (!valid) return res.status(401).json({ error: "Identifiants incorrects" });
+    if (!customer.verified)
+      return res.status(403).json({ error: "Vérifiez votre email avant de vous connecter.", needsVerification: true, email });
+
+    const token = jwt.sign({ id: customer.id, email: customer.email, name: customer.name }, CUSTOMER_JWT_SECRET, { expiresIn: "30d" });
+    res.json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, phone: customer.phone, city: customer.city, address: customer.address, country: customer.country } });
+  } catch (err) {
+    console.error("Login error:", err.message);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// GET /api/auth/me
+app.get("/api/auth/me", authCustomer, async (req, res) => {
+  try {
+    const customer = await prisma.customer.findUnique({
+      where:  { id: req.customer.id },
+      select: { id: true, name: true, email: true, phone: true, address: true, postalCode: true, city: true, country: true, birthdate: true, loyaltyPoints: true, createdAt: true },
+    });
+    if (!customer) return res.status(404).json({ error: "Compte introuvable" });
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/config — clés publiques (Stripe, Google Maps…)
+app.get("/api/config", (_req, res) => {
+  res.json({
+    stripeKey: process.env.STRIPE_PUBLISHABLE_KEY || "",
+    mapsKey:   process.env.GOOGLE_MAPS_KEY        || "",
+  });
+});
+
+// PATCH /api/customer/profile — mise à jour du profil
+app.patch("/api/customer/profile", authCustomer, async (req, res) => {
+  const { name, phone, address, postalCode, city, country, birthdate } = req.body;
+  const data = {};
+  if (name       !== undefined) data.name       = name;
+  if (phone      !== undefined) data.phone      = phone;
+  if (address    !== undefined) data.address    = address;
+  if (postalCode !== undefined) data.postalCode = postalCode;
+  if (city       !== undefined) data.city       = city;
+  if (country    !== undefined) data.country    = country;
+  if (birthdate  !== undefined) data.birthdate  = birthdate ? new Date(birthdate) : null;
+  try {
+    const customer = await prisma.customer.update({
+      where:  { id: req.customer.id },
+      data,
+      select: { id:true, name:true, email:true, phone:true, address:true, postalCode:true, city:true, country:true, birthdate:true, loyaltyPoints:true, createdAt:true },
+    });
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/customer/orders — historique des commandes du client connecté
+app.get("/api/customer/orders", authCustomer, async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      where:   { customerId: req.customer.id },
+      include: { items: { include: { product: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/customer/me — profil complet (avec points + date inscription)
+app.get("/api/customer/me", authCustomer, async (req, res) => {
+  try {
+    const customer = await prisma.customer.findUnique({
+      where:  { id: req.customer.id },
+      select: { id:true, name:true, email:true, phone:true, address:true, city:true, country:true, birthdate:true, loyaltyPoints:true, createdAt:true },
+    });
+    if (!customer) return res.status(404).json({ error: "Compte introuvable" });
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* ══════════════════════════════════════════════════════════════
    AUTHENTIFICATION ADMIN (JWT)
@@ -467,13 +756,17 @@ app.get("/api/admin/orders", authAdmin, async (_req, res) => {
   }
 });
 
-// PATCH /api/admin/orders/:id — mettre à jour le statut d'une commande
+// PATCH /api/admin/orders/:id — statut, tracking, notes
 app.patch("/api/admin/orders/:id", authAdmin, async (req, res) => {
-  const { status } = req.body;
+  const { status, trackingNumber, deliveryNotes } = req.body;
+  const data = {};
+  if (status        !== undefined) data.status         = status;
+  if (trackingNumber !== undefined) data.trackingNumber = trackingNumber;
+  if (deliveryNotes  !== undefined) data.deliveryNotes  = deliveryNotes;
   try {
     const order = await prisma.order.update({
       where: { id: parseInt(req.params.id) },
-      data:  { status },
+      data,
     });
     res.json(order);
   } catch (err) {
@@ -531,4 +824,17 @@ app.get("/api/admin/dashboard", authAdmin, async (_req, res) => {
 app.get("/health", (_req, res) => res.json({ status: "YARAÏ server OK" }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ YARAÏ server démarré sur http://localhost:${PORT}`));
+
+async function migrate() {
+  try {
+    await pool.query(`ALTER TABLE "Order"    ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT`);
+    await pool.query(`ALTER TABLE "Order"    ADD COLUMN IF NOT EXISTS "deliveryNotes"  TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "birthdate"      TIMESTAMP`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "loyaltyPoints"  INTEGER NOT NULL DEFAULT 0`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "postalCode"     TEXT`);
+  } catch (e) { console.warn("migrate:", e.message); }
+}
+
+migrate().then(() => {
+  app.listen(PORT, () => console.log(`✅ YARAÏ server démarré sur http://localhost:${PORT}`));
+});

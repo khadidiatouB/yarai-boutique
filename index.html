@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YARAÏ — Simplement Belle</title>
+<meta name="description" content="YARAÏ — Boutique de jupes premium. Coupes exclusives, livraison internationale.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <!-- Stripe.js -->
 <script src="https://js.stripe.com/v3/"></script>
-<!-- PayDunya : aucun SDK frontend requis (flux redirect) -->
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,13 +20,15 @@
 <nav id="navbar">
   <span class="nav-logo" onclick="navigate('/')">YARAÏ</span>
   <ul class="nav-links">
-    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('collection')?.scrollIntoView({behavior:'smooth'}),100)">Collection</a></li>
-    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('about')?.scrollIntoView({behavior:'smooth'}),100)">La Marque</a></li>
+    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('collection')?.scrollIntoView({behavior:'smooth'}),100)">Collections</a></li>
+    <li><a href="#">Lookbook</a></li>
+    <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('about')?.scrollIntoView({behavior:'smooth'}),100)">Notre Histoire</a></li>
     <li><a onclick="navigate('/');setTimeout(()=>document.getElementById('contact')?.scrollIntoView({behavior:'smooth'}),100)">Contact</a></li>
   </ul>
   <div class="nav-right">
+    <div id="navUserArea"></div>
     <button class="nav-cart-mobile" onclick="toggleCart()">
-      🛍️ <span class="cart-badge" id="cartBadgeMobile"></span>
+      Panier <span class="cart-badge" id="cartBadgeMobile"></span>
     </button>
     <div class="nav-burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
     <button class="nav-cta" onclick="toggleCart()">
@@ -45,8 +47,8 @@
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
-    <div class="cart-subtotal"><span>Sous-total</span><span id="cartSubtotal">0 FCFA</span></div>
-    <div class="cart-total"><span>Total</span><span id="cartTotal">0 FCFA</span></div>
+    <div class="cart-subtotal"><span>Sous-total</span><span id="cartSubtotal">0 €</span></div>
+    <div class="cart-total"><span>Total</span><span id="cartTotal">0 €</span></div>
     <button class="btn-checkout" onclick="goToCheckout()">Passer la commande →</button>
   </div>
 </div>
@@ -57,9 +59,9 @@
   <!-- HERO -->
   <section id="hero">
     <div class="hero-left">
-      <div class="hero-eyebrow">Collection Estivale 2025</div>
-      <h1 class="hero-title">Sois<br><em>simplement</em><br>belle.</h1>
-      <p class="hero-slogan">Élégance naturelle · Fait au Sénégal</p>
+      <div class="hero-eyebrow">Collection 2025</div>
+      <h1 class="hero-title">La jupe,<br><em>réinventée.</em></h1>
+      <p class="hero-slogan">Coupes exclusives · Livraison internationale</p>
       <div class="hero-btns">
         <button class="btn-primary" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">Découvrir la collection</button>
         <button class="btn-outline" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Notre histoire</button>
@@ -68,8 +70,7 @@
     <div class="hero-right">
       <div class="hero-img-wrap">
         <img src="assets/naya_pants_extralarge.png" alt="YARAÏ Collection">
-        <div class="hero-badge">Nouveau</div>
-        <div class="hero-tag">Collection Capsule 2025</div>
+        <div class="hero-tag">simplement belle</div>
       </div>
       <div class="hero-scroll"><span>Défiler</span><div class="scroll-line"></div></div>
     </div>
@@ -78,50 +79,68 @@
   <!-- COLLECTION -->
   <section id="collection" style="background:var(--white);padding:100px 60px;">
     <div class="collection-intro reveal">
-      <h2 class="collection-headline">Capsule <em>Estivale</em><br>— Pièces de Caractère</h2>
+      <h2 class="collection-headline">Nos <em>Collections</em></h2>
       <div class="collection-filter">
-        <button class="filter-btn active" onclick="filterProducts('all',this)">Tout</button>
-        <button class="filter-btn" onclick="filterProducts('ensemble',this)">Ensembles</button>
-        <button class="filter-btn" onclick="filterProducts('jupe',this)">Jupes</button>
-        <button class="filter-btn" onclick="filterProducts('robe',this)">Robes</button>
+        <button class="filter-btn active" onclick="filterProducts('all',this)">Toutes</button>
+        <button class="filter-btn" onclick="filterProducts('jeans',this)">Jeans</button>
+        <button class="filter-btn" onclick="filterProducts('coton-raye',this)">Coton rayuré</button>
+        <button class="filter-btn" onclick="filterProducts('coton-uni',this)">Coton uni</button>
+        <button class="filter-btn" onclick="filterProducts('imprime',this)">Imprimé</button>
+        <button class="filter-btn" onclick="filterProducts('satin',this)">Satin</button>
       </div>
     </div>
     <div class="products-grid" id="productsGrid"></div>
   </section>
 
-  <!-- À PROPOS -->
-  <section id="about" style="background:var(--deep);padding:100px 60px;position:relative;overflow:hidden;">
+  <!-- NOTRE HISTOIRE -->
+  <section id="about" style="background:var(--black);padding:100px 60px;position:relative;overflow:hidden;">
     <div class="about-grid">
       <div class="about-visual reveal">
         <div class="about-frame">
-          <div class="about-label">Dakar · Sénégal</div>
-          <img src="assets/safia.png" alt="YARAÏ Atelier" style="width:100%;height:100%;object-fit:contain;object-position:top;border-radius:24px;opacity:.8">
+          <div class="about-label">La Maison YARAÏ</div>
+          <img src="assets/safia.png" alt="YARAÏ Atelier" style="width:100%;height:100%;object-fit:contain;object-position:top;border-radius:2px;opacity:.75">
         </div>
       </div>
       <div class="about-content">
-        <div class="section-label reveal"><span class="num">02</span><span class="txt">La Marque</span><div class="section-line"></div></div>
-        <h2 class="about-title reveal">L'élégance<br>naît <em>ici,</em><br>au Sénégal.</h2>
-        <p class="about-text reveal">YARAÏ est née d'une conviction simple : toute femme mérite de se sentir belle au quotidien, sans effort, sans compromis. Des pièces pensées pour mettre en valeur la silhouette tout en restant légères, confortables, libres.</p>
-        <p class="about-text reveal">Notre première capsule estivale est entièrement confectionnée au Sénégal, par des mains expertes qui donnent vie à chaque couture. Production locale, savoir-faire artisanal, impact humain réel.</p>
+        <div class="section-label reveal"><span class="num">02</span><span class="txt">Notre Histoire</span><div class="section-line"></div></div>
+        <h2 class="about-title reveal">La jupe<br><em>parfaite,</em><br>enfin.</h2>
+        <p class="about-text reveal">YARAÏ est née de l'obsession d'une seule pièce : la jupe parfaite. Chaque modèle est pensé pour toutes les silhouettes, confectionné avec soin, conçu pour durer.</p>
+        <p class="about-text reveal">Nous ne faisons pas de compromis sur la coupe, la matière, ni la finition. Chaque jupe YARAÏ est une déclaration d'élégance — sans effort, sans excès.</p>
         <div class="about-pillars reveal">
-          <div class="pillar"><div class="pillar-icon">🌿</div><div class="pillar-title">Local & Artisanal</div><div class="pillar-text">Confectionné au Sénégal par des couturiers de talent.</div></div>
-          <div class="pillar"><div class="pillar-icon">✨</div><div class="pillar-title">Accessible</div><div class="pillar-text">L'élégance pour toutes, à des prix justes et transparents.</div></div>
-          <div class="pillar"><div class="pillar-icon">💃</div><div class="pillar-title">Féminin & Libre</div><div class="pillar-text">Des coupes qui célèbrent le corps de la femme moderne.</div></div>
-          <div class="pillar"><div class="pillar-icon">🌍</div><div class="pillar-title">Livraison Mondiale</div><div class="pillar-text">Expédition partout dans le monde. Paiement international.</div></div>
+          <div class="pillar">
+            <div class="pillar-icon">◆</div>
+            <div class="pillar-title">Qualité</div>
+            <div class="pillar-text">Matières sélectionnées, finitions irréprochables à chaque couture.</div>
+          </div>
+          <div class="pillar">
+            <div class="pillar-icon">◈</div>
+            <div class="pillar-title">Coupe</div>
+            <div class="pillar-text">Des silhouettes pensées pour mettre en valeur chaque corps.</div>
+          </div>
+          <div class="pillar">
+            <div class="pillar-icon">◇</div>
+            <div class="pillar-title">Inclusivité</div>
+            <div class="pillar-text">Du XS au XL — parce que l'élégance n'a pas de taille.</div>
+          </div>
+          <div class="pillar">
+            <div class="pillar-icon">○</div>
+            <div class="pillar-title">Durabilité</div>
+            <div class="pillar-text">Conçues pour durer, pas pour être jetées après une saison.</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- CONTACT -->
-  <section id="contact">
+  <section id="contact" style="background:var(--bg-alt);padding:100px 60px;">
     <div class="contact-inner">
       <h2 class="contact-title reveal">Restons<br><em>connectées.</em></h2>
-      <p class="contact-sub reveal">Suivez YARAÏ sur les réseaux sociaux pour ne rien manquer de la collection et des nouveautés.</p>
+      <p class="contact-sub reveal">Suivez YARAÏ pour ne rien manquer des nouvelles collections et des éditions limitées.</p>
       <div class="contact-grid reveal">
         <a class="contact-card" href="#"><div class="icon">📸</div><div class="name">Instagram</div><div class="val">@yarai.officiel</div></a>
-        <a class="contact-card" href="#"><div class="icon">🎵</div><div class="name">TikTok</div><div class="val">@yarai.mode</div></a>
-        <a class="contact-card" href="mailto:contact@yarai.sn"><div class="icon">✉️</div><div class="name">Email</div><div class="val">contact@yarai.sn</div></a>
+        <a class="contact-card" href="#"><div class="icon">▷</div><div class="name">TikTok</div><div class="val">@yarai.mode</div></a>
+        <a class="contact-card" href="mailto:contact@yarai.com"><div class="icon">✉</div><div class="name">Email</div><div class="val">contact@yarai.com</div></a>
       </div>
       <div class="contact-form reveal">
         <input type="email" placeholder="Votre email pour la newsletter…" id="emailInput"/>
@@ -130,17 +149,40 @@
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer class="site-footer">
-    <div><div class="footer-logo">YARAÏ</div><div class="footer-slogan">simplement belle</div></div>
-    <div class="footer-links">
-      <a onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">Collection</a>
-      <a onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">La Marque</a>
-      <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">YARAÏ</div>
+        <div class="footer-slogan">simplement belle</div>
+      </div>
+      <div class="footer-links">
+        <a onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">Collections</a>
+        <a onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Notre Histoire</a>
+        <a onclick="navigate('/livraisons-retours')">Livraisons &amp; Retours</a>
+        <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
+        <a onclick="navigate('/mentions-legales')">Mentions légales</a>
+      </div>
+      <div class="footer-payments">
+        <img class="footer-payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa">
+        <img class="footer-payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+        <span style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:1px">STRIPE</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:1px">CINETPAY</span>
+      </div>
     </div>
-    <div class="footer-copy">© 2025 YARAÏ · Dakar, Sénégal · Paiement sécurisé</div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 YARAÏ — Tous droits réservés</div>
+      <div class="footer-copy">Paiement sécurisé · SSL 256 bits</div>
+    </div>
   </footer>
 
 </div><!-- /page-home -->
+
+<!-- ════════════════════ PAGE AUTH ════════════════════ -->
+<div id="page-auth"></div>
+
+<!-- ════════════════════ PAGE COMPTE ════════════════════ -->
+<div id="page-compte"></div>
 
 <!-- ════════════════════ PAGE PRODUIT ════════════════════ -->
 <div id="page-produit"></div>
@@ -153,7 +195,7 @@
     <div class="checkout-main">
       <button class="pdp-back" onclick="navigate('/')">Retour à la boutique</button>
       <h1 class="checkout-title" style="margin-top:24px">Finaliser<br><em>ma commande</em></h1>
-      <p class="checkout-sub">Paiement sécurisé · Livraison mondiale</p>
+      <p class="checkout-sub">Paiement sécurisé · Livraison internationale</p>
 
       <!-- Steps -->
       <div class="co-steps-bar">
@@ -177,22 +219,39 @@
       <div class="co-block">
         <div class="co-block-title">Vos coordonnées</div>
         <div class="co-grid-2">
-          <div class="co-field"><label>Prénom & Nom *</label><input class="co-input" id="co-name" type="text" placeholder="Fatou Diallo"></div>
-          <div class="co-field"><label>Email *</label><input class="co-input" id="co-email" type="email" placeholder="fatou@email.com"></div>
-          <div class="co-field"><label>Téléphone *</label><input class="co-input" id="co-phone" type="tel" placeholder="+221 77 000 00 00"></div>
-          <div class="co-field"><label>Ville</label><input class="co-input" id="co-city" type="text" placeholder="Dakar, Paris, New York…"></div>
-          <div class="co-field" style="grid-column:span 2"><label>Adresse de livraison</label><input class="co-input" id="co-address" type="text" placeholder="Rue, quartier, code postal…"></div>
-          <div class="co-field"><label>Pays</label>
+          <div class="co-field"><label>Nom complet *</label><input class="co-input" id="co-name" type="text" placeholder="Prénom Nom"></div>
+          <div class="co-field"><label>Email *</label><input class="co-input" id="co-email" type="email" placeholder="email@exemple.com"></div>
+          <div class="co-field"><label>Téléphone *</label><input class="co-input" id="co-phone" type="tel" placeholder="+33 6 00 00 00 00"></div>
+          <div class="co-field" style="grid-column:span 2">
+            <label>Adresse de livraison</label>
+            <div class="co-address-wrap">
+              <input class="co-input" id="co-address" type="text" autocomplete="off" placeholder="Commencez à saisir votre adresse…">
+              <div class="co-maps-hint" id="co-maps-hint"></div>
+            </div>
+          </div>
+          <div class="co-field"><label>Code postal</label><input class="co-input" id="co-postal" type="text" placeholder="75001"></div>
+          <div class="co-field"><label>Ville</label><input class="co-input" id="co-city" type="text" placeholder="Paris, London, Dakar…"></div>
+          <div class="co-field">
+            <label>Pays</label>
             <select class="co-input" id="co-country">
-              <option value="SN">🇸🇳 Sénégal</option>
               <option value="FR">🇫🇷 France</option>
-              <option value="CI">🇨🇮 Côte d'Ivoire</option>
-              <option value="ML">🇲🇱 Mali</option>
-              <option value="GN">🇬🇳 Guinée</option>
-              <option value="CM">🇨🇲 Cameroun</option>
-              <option value="US">🇺🇸 États-Unis</option>
+              <option value="BE">🇧🇪 Belgique</option>
+              <option value="CH">🇨🇭 Suisse</option>
+              <option value="LU">🇱🇺 Luxembourg</option>
               <option value="GB">🇬🇧 Royaume-Uni</option>
               <option value="DE">🇩🇪 Allemagne</option>
+              <option value="ES">🇪🇸 Espagne</option>
+              <option value="IT">🇮🇹 Italie</option>
+              <option value="US">🇺🇸 États-Unis</option>
+              <option value="CA">🇨🇦 Canada</option>
+              <option value="MA">🇲🇦 Maroc</option>
+              <option value="TN">🇹🇳 Tunisie</option>
+              <option value="DZ">🇩🇿 Algérie</option>
+              <option value="SN">🇸🇳 Sénégal</option>
+              <option value="CI">🇨🇮 Côte d'Ivoire</option>
+              <option value="ML">🇲🇱 Mali</option>
+              <option value="CM">🇨🇲 Cameroun</option>
+              <option value="GN">🇬🇳 Guinée</option>
               <option value="OTHER">🌍 Autre pays</option>
             </select>
           </div>
@@ -210,12 +269,12 @@
             <span class="t-sub">Visa · Mastercard</span>
           </button>
           <button class="pay-tab" onclick="selectPayMethod('wave',this)">
-            <span class="t-icon">🌊</span>
+            <span class="t-icon">〜</span>
             <span class="t-name">Wave</span>
             <span class="t-sub">Mobile Money</span>
           </button>
           <button class="pay-tab" onclick="selectPayMethod('orange',this)">
-            <span class="t-icon">🟠</span>
+            <span class="t-icon">◉</span>
             <span class="t-name">Orange Money</span>
             <span class="t-sub">Mobile Money</span>
           </button>
@@ -247,7 +306,7 @@
             </div>
           </div>
           <div class="mobile-info-box">
-            Après confirmation, vous recevrez une <strong>notification Wave</strong> sur ce numéro pour valider le paiement. Le montant sera débité de votre compte Wave.
+            Après confirmation, vous recevrez une <strong>notification Wave</strong> sur ce numéro pour valider le paiement.
           </div>
         </div>
 
@@ -261,7 +320,7 @@
             </div>
           </div>
           <div class="mobile-info-box">
-            Vous recevrez un <strong>code USSD Orange Money</strong> pour confirmer le paiement. Composez le code sur votre téléphone pour valider.
+            Vous recevrez un <strong>code USSD Orange Money</strong> pour confirmer le paiement.
           </div>
         </div>
 
@@ -290,16 +349,23 @@
     <div class="checkout-recap">
       <div class="recap-title">Votre commande</div>
       <div class="recap-items" id="recapItems"></div>
-      <div class="recap-line"><span>Sous-total</span><span class="recap-total-amount">0 FCFA</span></div>
+      <div class="recap-line"><span>Sous-total</span><span class="recap-total-amount">0 €</span></div>
       <div class="recap-line"><span>Livraison</span><span>Calculée à l'expédition</span></div>
-      <div class="recap-total"><span>Total</span><span class="recap-total-amount" style="color:var(--terra)">0 FCFA</span></div>
+      <div class="recap-total">
+        <span>Total</span>
+        <div>
+          <span class="recap-total-amount">0 €</span>
+          <div id="recapFcfaNote" style="font-size:11px;color:var(--muted);text-align:right;font-family:'DM Sans',sans-serif;margin-top:2px"></div>
+        </div>
+      </div>
       <div class="recap-secure">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Paiement sécurisé SSL · Données protégées
       </div>
-      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" style="height:24px;opacity:.7">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style="height:24px;opacity:.7">
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" style="height:22px;opacity:.5;filter:grayscale(1)">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style="height:22px;opacity:.5;filter:grayscale(1)">
+        <span style="font-size:10px;color:var(--muted);letter-spacing:1px">STRIPE</span>
       </div>
     </div>
 
@@ -309,8 +375,8 @@
 <!-- ════════════════════ PAGE CONFIRMATION ════════════════════ -->
 <div id="page-confirmation">
   <div class="confirmation-box">
-    <div class="confirmation-icon">🎉</div>
-    <h1 class="confirmation-title">Merci pour<br>votre <em>commande !</em></h1>
+    <div class="confirmation-icon">✓</div>
+    <h1 class="confirmation-title">Merci pour<br>votre <em>commande.</em></h1>
     <p class="confirmation-text">
       Votre paiement a bien été reçu. Vous allez recevoir un email de confirmation sous quelques minutes.<br><br>
       Notre équipe vous contactera dans les 24h pour organiser la livraison.
@@ -320,10 +386,213 @@
   </div>
 </div>
 
+<!-- ════════════════════ PAGE MENTIONS LÉGALES ════════════════════ -->
+<div id="page-mentions">
+  <div class="static-page-wrap">
+    <button class="pdp-back" onclick="navigate('/')">Retour à la boutique</button>
+    <div class="static-page-content">
+      <h1 class="static-page-title">Mentions <em>légales</em></h1>
+
+      <div class="static-block">
+        <h2>Éditeur du site</h2>
+        <p>Le site <strong>yarai.com</strong> est édité par YARAÏ, marque de prêt-à-porter féminin.</p>
+        <p>Email de contact : <a href="mailto:contact@yarai.com">contact@yarai.com</a></p>
+      </div>
+
+      <div class="static-block">
+        <h2>Responsable de la publication</h2>
+        <p>Khadidiatou Beye — Fondatrice YARAÏ</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Hébergement</h2>
+        <p>Le site est hébergé par un prestataire tiers. Les coordonnées de l'hébergeur sont disponibles sur demande à l'adresse email ci-dessus.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Propriété intellectuelle</h2>
+        <p>L'ensemble des contenus présents sur ce site (textes, photographies, images, illustrations, logotypes) est la propriété exclusive de YARAÏ ou de ses partenaires. Toute reproduction, même partielle, est strictement interdite sans autorisation préalable écrite.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Données personnelles (RGPD)</h2>
+        <p>Les données collectées lors de vos commandes (nom, adresse email, adresse postale, téléphone) sont utilisées exclusivement dans le cadre du traitement de vos commandes et de notre relation commerciale.</p>
+        <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez-nous à <a href="mailto:contact@yarai.com">contact@yarai.com</a>.</p>
+        <p>Vos données ne sont jamais revendues à des tiers. Les informations de paiement sont traitées directement par Stripe (carte bancaire) ou CinetPay (Mobile Money) — YARAÏ ne stocke aucune donnée bancaire.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Cookies</h2>
+        <p>Ce site utilise uniquement des cookies techniques nécessaires au bon fonctionnement du site (panier, session). Aucun cookie de tracking tiers n'est utilisé sans votre consentement.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Droit applicable</h2>
+        <p>Les présentes mentions légales sont soumises au droit français. En cas de litige, les tribunaux français seront seuls compétents.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE LIVRAISONS & RETOURS ════════════════════ -->
+<div id="page-livraisons">
+  <div class="static-page-wrap">
+    <button class="pdp-back" onclick="navigate('/')">Retour à la boutique</button>
+    <div class="static-page-content">
+      <h1 class="static-page-title">Livraisons <em>&amp; Retours</em></h1>
+
+      <div class="static-block">
+        <h2>Délais de livraison</h2>
+        <div class="static-table">
+          <div class="static-table-row header">
+            <span>Destination</span><span>Délai estimé</span><span>Frais de port</span>
+          </div>
+          <div class="static-table-row">
+            <span>France métropolitaine</span><span>5–7 jours ouvrés</span><span>Offerts dès 80 €</span>
+          </div>
+          <div class="static-table-row">
+            <span>Europe (UE)</span><span>7–10 jours ouvrés</span><span>Offerts dès 120 €</span>
+          </div>
+          <div class="static-table-row">
+            <span>Afrique de l'Ouest</span><span>7–14 jours ouvrés</span><span>Calculés à la commande</span>
+          </div>
+          <div class="static-table-row">
+            <span>International</span><span>10–21 jours ouvrés</span><span>Calculés à la commande</span>
+          </div>
+        </div>
+        <p style="margin-top:16px;font-size:13px;color:var(--muted)">Les délais sont indicatifs et peuvent varier selon les conditions douanières et logistiques locales.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Suivi de commande</h2>
+        <p>Un email de confirmation contenant votre numéro de suivi vous est envoyé dès l'expédition de votre commande. Vous pouvez suivre votre colis directement depuis le lien fourni.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Politique de retour</h2>
+        <p>Vous disposez de <strong>30 jours</strong> à compter de la réception pour retourner votre article, sans avoir à justifier de motif.</p>
+        <ul class="static-list">
+          <li>L'article doit être non porté, non lavé, dans son état d'origine</li>
+          <li>L'étiquette doit être intacte et attachée à l'article</li>
+          <li>L'article doit être retourné dans son emballage d'origine (ou équivalent)</li>
+          <li>Les articles en promotion ou les éditions limitées ne sont pas échangeables</li>
+        </ul>
+      </div>
+
+      <div class="static-block">
+        <h2>Procédure de retour</h2>
+        <p>Pour initier un retour, contactez-nous par email à <a href="mailto:contact@yarai.com">contact@yarai.com</a> en indiquant votre numéro de commande et le motif du retour. Nous vous adresserons les instructions sous 24h.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Remboursement</h2>
+        <p>Dès réception et vérification de l'article retourné, le remboursement est effectué sous <strong>7 jours ouvrés</strong> sur le moyen de paiement utilisé lors de la commande.</p>
+        <p>Les frais de retour sont à la charge du client, sauf en cas d'erreur de notre part ou d'article défectueux.</p>
+      </div>
+
+      <div class="static-block">
+        <h2>Article défectueux ou erreur</h2>
+        <p>Si vous avez reçu un article défectueux ou différent de votre commande, contactez-nous immédiatement à <a href="mailto:contact@yarai.com">contact@yarai.com</a>. Nous prendrons en charge l'intégralité des frais de retour et vous enverrons le bon article dans les meilleurs délais.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="js/main.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/payment.js"></script>
 <script>
-  // Générer une référence de commande à l'affichage de la confirmation
+/* ── Autocomplete adresse — OpenStreetMap/Photon (gratuit, sans clé) ── */
+
+function initAddressAutocomplete(inputId, onFill) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  const wrap = input.closest(".co-address-wrap");
+  if (!wrap) return;
+
+  // Dropdown
+  let dropdown = wrap.querySelector(".yarai-ac-dropdown");
+  if (!dropdown) {
+    dropdown = document.createElement("div");
+    dropdown.className = "yarai-ac-dropdown pac-container";
+    wrap.appendChild(dropdown);
+  }
+
+  // Badge OpenStreetMap
+  const hint = wrap.querySelector(".co-maps-hint");
+  if (hint) hint.innerHTML = '<span class="maps-powered">Adresse vérifiée par OpenStreetMap</span>';
+
+  let timer, lastQuery = "";
+
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (q.length < 4 || q === lastQuery) { hideDropdown(dropdown); return; }
+    timer = setTimeout(() => fetchAddresses(q, dropdown, input, onFill), 350);
+  });
+
+  input.addEventListener("blur", () => setTimeout(() => hideDropdown(dropdown), 200));
+
+  document.addEventListener("click", e => {
+    if (!wrap.contains(e.target)) hideDropdown(dropdown);
+  });
+}
+
+async function fetchAddresses(q, dropdown, input, onFill) {
+  try {
+    const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(q) + "&limit=6&lang=fr";
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    dropdown.innerHTML = "";
+    const features = (data.features || []).filter(f => {
+      const p = f.properties;
+      return p.street || (p.type === "house") || p.name;
+    }).slice(0, 6);
+
+    if (!features.length) { hideDropdown(dropdown); return; }
+
+    features.forEach(feature => {
+      const p      = feature.properties;
+      const num    = p.housenumber || "";
+      const street = p.street || p.name || "";
+      const addr   = (num + " " + street).trim();
+      const postal = p.postcode || "";
+      const city   = p.city || p.town || p.village || p.municipality || "";
+      const countryCode = (p.countrycode || "").toUpperCase();
+
+      const item = document.createElement("div");
+      item.className = "pac-item";
+      item.innerHTML =
+        "<span class='pac-item-query'>" + escAC(addr || city) + "</span>" +
+        (postal || city ? "<span class='pac-item-meta'>" + [postal, city].filter(Boolean).join(" · ") + "</span>" : "");
+
+      item.addEventListener("mousedown", e => {
+        e.preventDefault();
+        if (addr) input.value = addr;
+        hideDropdown(dropdown);
+        onFill({ address: addr, city, postalCode: postal, country: countryCode });
+      });
+
+      dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+  } catch {
+    hideDropdown(dropdown);
+  }
+}
+
+function hideDropdown(dropdown) {
+  if (dropdown) { dropdown.innerHTML = ""; dropdown.style.display = "none"; }
+}
+
+function escAC(str) {
+  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+</script>
+<script>
   window.addEventListener("hashchange", () => {
     if (window.location.hash === "#/confirmation") {
       const ref = "YARAÏ-" + Date.now().toString(36).toUpperCase();

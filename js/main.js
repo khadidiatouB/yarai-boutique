@@ -5,149 +5,111 @@
 
 const CATALOGUE = [
 
-  /* ── PRODUIT 1 ── */
+  /* ── 1 · Jupe Évasée Denim ── */
   {
-    id: "naya-imprime-orange",
-    name: "Naya Imprimé",
-    cat: "ensemble",
-    price: 28500,
-    badge: "Nouveau",
-    badgeColor: "terra",
-    sizes: ["XS", "S", "M", "L"],
-    desc: "Ensemble asymétrique en tissu imprimé de motifs calligraphiques. Top à épaule unique avec anneau doré, pantalon large fluide. Un look éditorial, entre tradition et modernité.",
-    details: { Matière: "100% Viscose", Origine: "Fait au Sénégal", Entretien: "Lavage à la main", Livraison: "5–7 jours" },
-    variants: [
-      { label: "Terracotta imprimé", image: "assets/naya.png" },
-      { label: "Sable imprimé",      image: "assets/naya_imprim_marrontope.png" },
-    ]
-  },
-
-     /* ── PRODUIT 2 ── */
-  {
-    id: "skirt-alya",
-    name: "Jupe Alya",
-    cat: "jupe",
-    price: 12000,
-    badge: "Limité",
-    badgeColor: "deep",
-    sizes: ["S", "M", "L"],
-    desc: "Jupe longue asymétrique, esprit côtier et estival. Tombé parfait, Légère et fluide, elle se porte aussi bien en journée qu'en soirée",
-    details: { Matière: "Coton ", Origine: "Fait au Sénégal", Entretien: "Lavage à la main", Livraison: "5–7 jours" },
-    variants: [
-      { label: "Jaune", image: "assets/alya_jaune.png" },
-      { label: "Bleu", image: "assets/alya_blue.png" },
-      { label: "Terracotta", image: "assets/alya_terracotta.png" },
-    ]
-  },
-
-
-  /* ── PRODUIT 3 ── */
-  {
-    id: "luma",
-    name: "Luma",
-    cat: "ensemble",
-    price: 26000,
-    badge: "Limité",
-    badgeColor: "deep",
-    sizes: ["S", "M", "L"],
-    desc: "L'ensemble Luma se distingue par son col drapé enveloppant et son pantalon palazzo à plis. Une pièce architecturale pour femme qui aime affirmer son style.",
-    details: { Matière: "Lin & Coton", Origine: "Fait au Sénégal", Entretien: "Lavage à froid", Livraison: "5–7 jours" },
-    variants: [
-      { label: "Vert",   image: "assets/luma_vert.png" },
-      { label: "Marron", image: "assets/luma_marron.png" },
-      { label: "Noir",   image: "assets/luma_noir.png" },
-    ]
-  },
-
-  /* ── PRODUIT 4 ── */
-  {
-    id: "skirt-solea",
-    name: "Jupe Solea",
-    cat: "jupe",
-    price: 13000,
+    id: "jupe-evasee-denim",
+    name: "Jupe Évasée Denim",
+    cat: "jeans",
+    coupe: "Évasée",
+    price: 69,
     badge: "",
-    badgeColor: "deep",
-    sizes: ["S", "M", "L"],
-    desc: "Jupe longue paysanne à taille haute. Tombé parfait, coupe flatteuse qui met en valeur les hanches. Déclinaison en trois coloris intemporels.",
-    details: { Matière: "Coton", Origine: "Fait au Sénégal", Entretien: "Lavage délicat", Livraison: "5–7 jours" },
+    sizes: ["XS","S","M","L","XL"],
     variants: [
-      { label: "Noir",   image: "assets/solea_noir.png" },
-      { label: "Marron", image: "assets/solea_marron.png" },
-      { label: "Blanc",  image: "assets/solea_blanc.png" },
-    ]
+      { label: "Bleu indigo",  image: "assets/alya_blue.png",       color: "#2B4F8C" },
+      { label: "Terracotta",   image: "assets/alya_terracotta.png",  color: "#C4704A" },
+      { label: "Soleil",       image: "assets/alya_jaune.png",       color: "#E8C547" },
+    ],
+    desc: "Une jupe évasée en denim premium qui allie structure et fluidité. La coupe légèrement évasée depuis les hanches offre un tombé élégant, pièce à pièce pensée pour toutes les silhouettes.",
+    details: { Matière: "98% Coton, 2% Élasthanne", Longueur: "Midi (env. 70 cm)", Coupe: "Évasée", Livraison: "5–10 jours ouvrés" }
   },
 
-
-  /* ── PRODUIT 5 ── */
+  /* ── 2 · Jupe Droite Jean ── */
   {
-    id: "skirt-azura",
-    name: "Jupe Azura",
-    cat: "jupe",
-    price: 13000,
-    badge: "Limité",
-    badgeColor: "deep",
-    sizes: ["S", "M", "L"],
-    desc: "Jupe mi-longue aux rayures graphiques, esprit côtier et estival. Légère et fluide, elle se porte aussi bien en journée qu'en soirée.",
-    details: { Matière: "Coton tissé", Origine: "Fait au Sénégal", Entretien: "Lavage à la main", Livraison: "5–7 jours" },
+    id: "jupe-droite-jean",
+    name: "Jupe Droite Jean",
+    cat: "jeans",
+    coupe: "Droite",
+    price: 59,
+    badge: "Nouveau",
+    sizes: ["XS","S","M","L","XL"],
     variants: [
-      { label: "Rayure Blue", image: "assets/azura.png" },
-      { label: "Blanc",       image: "assets/azura_blanc.png" },
-    ]
+      { label: "Noir délavé",  image: "assets/mira_noir.png",    color: "#2D2D2D" },
+      { label: "Marron tabac", image: "assets/mira_marron.png",  color: "#7A4830" },
+    ],
+    desc: "La jupe droite, pièce intemporelle réinventée en denim structuré. Coupe nette, longueur midi — une allure sobre et moderne du matin au soir.",
+    details: { Matière: "100% Coton", Longueur: "Midi (env. 68 cm)", Coupe: "Droite", Livraison: "5–10 jours ouvrés" }
   },
 
-  /* ── PRODUIT 1bis ── */
+  /* ── 3 · Jupe Trapèze Rayée ── */
   {
-    id: "naya-marron",
-    name: "Naya Uni",
-    cat: "ensemble",
-    price: 26000,
+    id: "jupe-trapeze-rayee",
+    name: "Jupe Rayée Trapèze",
+    cat: "coton-raye",
+    coupe: "Trapèze",
+    price: 49,
+    badge: "",
+    sizes: ["XS","S","M","L","XL"],
+    variants: [
+      { label: "Rayure marine", image: "assets/azura.png",       color: "#1B3A6B" },
+      { label: "Blanc optique", image: "assets/azura_blanc.png", color: "#F0EDE8" },
+    ],
+    desc: "Légère et graphique, cette jupe trapèze en coton rayé capture l'essence de l'été. Des rayures précises, une coupe trapèze qui libère chaque mouvement.",
+    details: { Matière: "100% Coton tissé", Longueur: "Mi-longue (env. 72 cm)", Coupe: "Trapèze", Livraison: "5–10 jours ouvrés" }
+  },
+
+  /* ── 4 · Jupe Paysanne Coton ── */
+  {
+    id: "jupe-paysanne-coton",
+    name: "Jupe Paysanne Coton",
+    cat: "coton-uni",
+    coupe: "Paysanne",
+    price: 55,
     badge: "Best-seller",
-    badgeColor: "gold",
-    sizes: ["S", "M", "L"],
-    desc: "La version uni du best-seller Naya. Même silhouette sculpturale, même drapé généreux — dans un coloris épuré qui se porte partout.",
-    details: { Matière: "100% Viscose", Origine: "Fait au Sénégal", Entretien: "Lavage à la main", Livraison: "5–7 jours" },
+    sizes: ["XS","S","M","L","XL"],
     variants: [
-      { label: "Vert uni",   image: "assets/naya_vert.jpg" },
-      { label: "Marron uni", image: "assets/Naya_marron.png" },
-    ]
+      { label: "Noir",   image: "assets/solea_noir.png",   color: "#1A1A1A" },
+      { label: "Écru",   image: "assets/solea_blanc.png",  color: "#F0EDE0" },
+      { label: "Marron", image: "assets/solea_marron.png", color: "#7A4830" },
+    ],
+    desc: "Taille haute, coupe paysanne ample : cette jupe en coton uni épuré sublime toutes les morphologies. Un essentiel de garde-robe à décliner à l'infini.",
+    details: { Matière: "100% Coton", Longueur: "Longue (env. 90 cm)", Coupe: "Paysanne", Livraison: "5–10 jours ouvrés" }
   },
 
-  /* ── PRODUIT 6 ── */
+  /* ── 5 · Jupe Longue Imprimée ── */
   {
-    id: "skirt-safia",
-    name: "Jupe Safia",
-    cat: "jupe",
-    price: 15000,
-    badge: "Limité",
-    badgeColor: "deep",
-    sizes: ["S", "M", "L"],
-    desc: "Jupe longue à multi-volants qui crée du mouvement à chaque pas, esprit côtier et estival. Légère et fluide, elle se porte aussi bien en journée qu'en soirée.",
-    details: { Matière: "Coton tissé", Origine: "Fait au Sénégal", Entretien: "Lavage à la main", Livraison: "5–7 jours" },
+    id: "jupe-imprimee-volants",
+    name: "Jupe Longue Imprimée",
+    cat: "imprime",
+    coupe: "Multi-volant",
+    price: 65,
+    badge: "",
+    sizes: ["XS","S","M","L","XL"],
     variants: [
-      { label: "Imprimé",  image: "assets/safia.png" },
-      { label: "Imprimé 2", image: "assets/safia_1.png" },
-    ]
+      { label: "Imprimé fleuri",    image: "assets/safia.png",   color: "#C8956A" },
+      { label: "Imprimé graphique", image: "assets/safia_1.png", color: "#8B7355" },
+    ],
+    desc: "Chaque volant révèle une nouvelle dimension du mouvement. Cette jupe longue imprimée habille avec grâce et se distingue à chaque foulée.",
+    details: { Matière: "100% Coton tissé", Longueur: "Longue (env. 100 cm)", Coupe: "Multi-volant", Livraison: "5–10 jours ouvrés" }
   },
 
-   /* ── PRODUIT 7 ── */
+  /* ── 6 · Jupe Midi Satin ── */
   {
-    id: "skirt-mira",
-    name: "Jupe Mira",
-    cat: "jupe",
-    price: 10000,
-    badge: "Limité",
-    badgeColor: "deep",
-    sizes: ["S", "M", "L"],
-    desc: "Jupe longue sirène, esprit côtier et estival. Tombé parfait, coupe moulante qui met en valeur les hanches.",
-    details: { Matière: "Coton tissé", Origine: "Fait au Sénégal", Entretien: "Lavage à la main", Livraison: "5–7 jours" },
+    id: "jupe-satin-sirene",
+    name: "Jupe Midi Satin",
+    cat: "satin",
+    coupe: "Sirène",
+    price: 79,
+    badge: "",
+    sizes: ["XS","S","M","L","XL"],
     variants: [
-      { label: "Marron", image: "assets/mira_marron.png" },
-      { label: "Noir", image: "assets/mira_noir.png" },
-      { label: "Leopard", image: "assets/mira_leopard.png" },
-    ]
+      { label: "Noir",    image: "assets/mira_noir.png",    color: "#1A1A1A" },
+      { label: "Marron",  image: "assets/mira_marron.png",  color: "#7A4830" },
+      { label: "Léopard", image: "assets/mira_leopard.png", color: "#C8A062" },
+    ],
+    desc: "Silhouette moulante, tombé soyeux : cette jupe satin à coupe sirène est pensée pour les femmes qui aiment affirmer leur présence en toute élégance.",
+    details: { Matière: "95% Polyester satiné, 5% Élasthanne", Longueur: "Midi (env. 75 cm)", Coupe: "Sirène", Livraison: "5–10 jours ouvrés" }
   },
 
-  
 ];
 
 /* ══════════════════════════════════════════════════════════════
@@ -155,9 +117,20 @@ const CATALOGUE = [
 ══════════════════════════════════════════════════════════════ */
 
 /* ── Helpers ── */
-const catLabel = cat => ({ ensemble:"Ensemble 2 pièces", top:"Top", pantalon:"Pantalon", jupe:"Jupe", robe:"Robe longue" }[cat] || cat);
-const badgeColors = { terra:"#C4704A", gold:"#B8933E", deep:"#261A12" };
-const fmt = n => parseInt(n,10).toLocaleString("fr") + " FCFA";
+const catLabel = cat => ({
+  "jeans":       "Jeans",
+  "coton-raye":  "Coton rayuré",
+  "coton-uni":   "Coton uni",
+  "imprime":     "Imprimé",
+  "satin":       "Satin",
+}[cat] || cat);
+
+const badgeColors = { default:"#0A0A0A", "Best-seller":"#C8A882", "Nouveau":"#0A0A0A", "Limité":"#0A0A0A" };
+
+const fmt = n => Number(n).toLocaleString("fr-FR", {
+  style: "currency", currency: "EUR",
+  minimumFractionDigits: 0, maximumFractionDigits: 0
+});
 
 /* ══════════════════════════════════════════════════════════════
    ROUTEUR SPA (hash-based)
@@ -168,7 +141,7 @@ function navigate(path) {
 
 function handleRoute() {
   const hash = window.location.hash.replace("#","") || "/";
-  const pages = ["page-home","page-produit","page-checkout","page-confirmation"];
+  const pages = ["page-home","page-produit","page-checkout","page-confirmation","page-mentions","page-livraisons","page-auth","page-compte"];
   pages.forEach(p => document.getElementById(p)?.classList.remove("active"));
 
   const nav = document.getElementById("navbar");
@@ -186,6 +159,31 @@ function handleRoute() {
     window.scrollTo(0,0);
   } else if (hash === "/confirmation") {
     document.getElementById("page-confirmation").classList.add("active");
+    nav.className = "scrolled";
+    window.scrollTo(0,0);
+    // Retour depuis Stripe (les params sont dans window.location.search)
+    handleStripeReturn();
+  } else if (hash.startsWith("/verify")) {
+    document.getElementById("page-auth").classList.add("active");
+    nav.className = "scrolled";
+    if (typeof handleVerifyToken === "function") handleVerifyToken();
+    window.scrollTo(0,0);
+  } else if (hash === "/auth") {
+    document.getElementById("page-auth").classList.add("active");
+    nav.className = "scrolled";
+    if (typeof renderAuthPage === "function") renderAuthPage();
+    window.scrollTo(0,0);
+  } else if (hash === "/compte") {
+    document.getElementById("page-compte").classList.add("active");
+    nav.className = "scrolled";
+    if (typeof renderComptePage === "function") renderComptePage();
+    window.scrollTo(0,0);
+  } else if (hash === "/mentions-legales") {
+    document.getElementById("page-mentions").classList.add("active");
+    nav.className = "scrolled";
+    window.scrollTo(0,0);
+  } else if (hash === "/livraisons-retours") {
+    document.getElementById("page-livraisons").classList.add("active");
     nav.className = "scrolled";
     window.scrollTo(0,0);
   } else {
@@ -212,36 +210,38 @@ function renderCatalogue(filter = "all") {
 
   grid.innerHTML = filtered.map((p, i) => {
     const v = p.variants[0];
-    const badgeStyle = p.badge ? `style="background:${badgeColors[p.badgeColor]||'#C4704A'}"` : "";
+    const badgeColor = badgeColors[p.badge] || "#0A0A0A";
     return `
-    <div class="product-card reveal" data-cat="${p.cat}" data-id="${p.id}" style="animation-delay:${i*80}ms" onclick="navigate('/produit/${p.id}')">
+    <div class="product-card reveal" data-cat="${p.cat}" data-id="${p.id}"
+         style="animation-delay:${i*60}ms" onclick="navigate('/produit/${p.id}')">
       <div class="product-visual">
-        ${p.badge ? `<div class="product-label-top" ${badgeStyle}>${p.badge}</div>` : ""}
+        ${p.badge ? `<div class="product-label-top" style="background:${badgeColor}">${p.badge}</div>` : ""}
         <button class="product-wishlist" onclick="event.stopPropagation();toggleWish(this)" aria-label="Favori">🤍</button>
-        <img src="${v.image}" alt="${p.name}" class="product-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="product-img-fallback" style="display:none"><span>📷</span><small>Bientôt disponible</small></div>
+        <img src="${v.image}" alt="${p.name}" class="product-img"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-img-fallback" style="display:none"><span>📷</span><small>Photo à venir</small></div>
         <div class="product-overlay">
-          <button class="btn-cart" onclick="event.stopPropagation();quickAddToCart('${p.id}')">+ Ajouter au panier</button>
+          <button class="btn-cart" onclick="event.stopPropagation();navigate('/produit/${p.id}')">Voir le produit</button>
         </div>
       </div>
       ${p.variants.length > 1 ? `
       <div class="variant-strip">
-        ${p.variants.map((vt,vi) => `<button class="variant-btn ${vi===0?'active':''}" title="${vt.label}" onclick="event.stopPropagation();switchCardVariant(this,'${p.id}',${vi})"></button>`).join("")}
+        ${p.variants.map((vt,vi) => `<button class="variant-btn ${vi===0?'active':''}" title="${vt.label}" style="background:${vt.color||'#E8E4DF'}" onclick="event.stopPropagation();switchCardVariant(this,'${p.id}',${vi})"></button>`).join("")}
       </div>` : ""}
       <div class="product-info">
-        <div class="product-cat">${catLabel(p.cat)}</div>
+        <div class="product-cat">${catLabel(p.cat)}${p.coupe ? " · " + p.coupe : ""}</div>
         <div class="product-name">${p.name}</div>
         <div class="variant-label" id="vlabel-${p.id}">${v.label}</div>
         <div class="product-footer">
           <div class="product-price">${fmt(p.price)}</div>
-          <div class="product-sizes">${p.sizes.map(s=>`<div class="size-dot">${s}</div>`).join("")}</div>
+          <div class="product-sizes">${p.sizes.slice(0,4).map(s=>`<div class="size-dot">${s}</div>`).join("")}</div>
         </div>
       </div>
     </div>`;
   }).join("");
 
   grid.querySelectorAll(".product-card.reveal").forEach((el,i) => {
-    setTimeout(() => el.classList.add("visible"), 100 + i*60);
+    setTimeout(() => el.classList.add("visible"), 80 + i*50);
   });
 }
 
@@ -251,7 +251,7 @@ function switchCardVariant(btn, id, vi) {
   const v = p.variants[vi];
   const card = btn.closest(".product-card");
   const img = card.querySelector(".product-img");
-  if (img) { img.src = v.image; img.style.display=""; }
+  if (img) { img.src = v.image; img.style.display = ""; }
   card.querySelectorAll(".variant-btn").forEach((b,i) => b.classList.toggle("active", i===vi));
   const lbl = document.getElementById("vlabel-"+id);
   if (lbl) lbl.textContent = v.label;
@@ -279,7 +279,10 @@ let pdpState = { variantIdx:0, sizeIdx:null, wished:false };
 function renderPDP(id) {
   const p = CATALOGUE.find(x => x.id === id);
   const container = document.getElementById("page-produit");
-  if (!p) { container.innerHTML = `<div style="padding:120px 60px;font-size:20px;color:var(--muted)">Produit introuvable. <button onclick="navigate('/')" class="btn-primary" style="margin-left:16px">Retour</button></div>`; return; }
+  if (!p) {
+    container.innerHTML = `<div style="padding:120px 60px;font-size:18px;color:var(--muted)">Produit introuvable. <button onclick="navigate('/')" class="btn-primary" style="margin-left:16px">Retour</button></div>`;
+    return;
+  }
 
   pdpState = { variantIdx:0, sizeIdx:null, wished:false, productId:id };
   const v = p.variants[0];
@@ -303,24 +306,23 @@ function renderPDP(id) {
             <img src="${vt.image}" alt="${vt.label}"
               class="pdp-thumb ${vi===0?'active':''}"
               onclick="pdpSelectVariant(${vi})"
-              onerror="this.style.display='none'"
-            >
+              onerror="this.style.display='none'">
           `).join("")}
         </div>` : ""}
       </div>
 
       <!-- INFOS -->
       <div class="pdp-info-col">
-        <div class="pdp-eyebrow">${catLabel(p.cat)}</div>
+        <div class="pdp-eyebrow">${catLabel(p.cat)}${p.coupe ? " · Coupe " + p.coupe : ""}</div>
         <h1 class="pdp-name">${p.name}</h1>
         <div class="pdp-price">${fmt(p.price)}</div>
-        <div class="pdp-price-sub">Livraison offerte à partir de 50 000 FCFA</div>
+        <div class="pdp-price-sub">Livraison internationale · Retours sous 30 jours</div>
 
         <div class="pdp-sep"></div>
 
         <!-- Variantes -->
         ${p.variants.length > 1 ? `
-        <div class="pdp-section-label">Coloris — <span id="pdpVLabel" style="color:var(--terra)">${v.label}</span></div>
+        <div class="pdp-section-label">Coloris — <span id="pdpVLabel" style="color:var(--accent)">${v.label}</span></div>
         <div class="pdp-variants-grid" id="pdpVariantsGrid">
           ${p.variants.map((vt,vi) => `
             <div class="pdp-variant-item ${vi===0?'active':''}" onclick="pdpSelectVariant(${vi})">
@@ -329,7 +331,7 @@ function renderPDP(id) {
               <span class="pdp-variant-name">${vt.label}</span>
             </div>
           `).join("")}
-        </div>` : `<div style="font-size:13px;color:var(--terra);margin-bottom:20px">${v.label}</div>`}
+        </div>` : `<div style="font-size:12px;color:var(--muted);margin-bottom:20px;letter-spacing:1px">${v.label}</div>`}
 
         <!-- Tailles -->
         <div class="pdp-section-label" style="margin-top:4px">Taille</div>
@@ -355,8 +357,8 @@ function renderPDP(id) {
 
         <!-- Actions -->
         <div class="pdp-actions">
-          <button class="pdp-btn-add" onclick="pdpAddToCart('${id}')">+ Ajouter au panier</button>
-          <button class="pdp-btn-wish" id="pdpWishBtn" onclick="pdpToggleWish()">🤍 Ajouter aux favoris</button>
+          <button class="pdp-btn-add" onclick="pdpAddToCart('${id}')">Ajouter au panier</button>
+          <button class="pdp-btn-wish" id="pdpWishBtn" onclick="pdpToggleWish()">♡ Ajouter aux favoris</button>
         </div>
       </div>
     </div>
@@ -365,7 +367,7 @@ function renderPDP(id) {
     <div class="pdp-related">
       <h2>Vous aimerez aussi <em>peut-être</em></h2>
       <div class="related-grid">
-        ${CATALOGUE.filter(x => x.id !== id).slice(0,4).map(rp => {
+        ${CATALOGUE.filter(x => x.cat === p.cat && x.id !== id).concat(CATALOGUE.filter(x => x.cat !== p.cat && x.id !== id)).slice(0,4).map(rp => {
           const rv = rp.variants[0];
           return `
           <div class="product-card" onclick="navigate('/produit/${rp.id}')">
@@ -391,7 +393,6 @@ function pdpSelectVariant(vi) {
   pdpState.variantIdx = vi;
   const v = p.variants[vi];
 
-  // Photo principale
   const mainPhoto = document.getElementById("pdpMainPhoto");
   if (mainPhoto) {
     mainPhoto.classList.add("switching");
@@ -399,15 +400,14 @@ function pdpSelectVariant(vi) {
       mainPhoto.src = v.image;
       mainPhoto.classList.remove("switching");
       mainPhoto.style.display = "";
-      document.getElementById("pdpFallback").style.display = "none";
+      const fb = document.getElementById("pdpFallback");
+      if (fb) fb.style.display = "none";
     }, 200);
   }
 
-  // Label coloris
   const lbl = document.getElementById("pdpVLabel");
   if (lbl) lbl.textContent = v.label;
 
-  // Activer vignette et variante
   document.querySelectorAll(".pdp-thumb").forEach((t,i) => t.classList.toggle("active", i===vi));
   document.querySelectorAll(".pdp-variant-item").forEach((d,i) => d.classList.toggle("active", i===vi));
 }
@@ -421,8 +421,10 @@ function pdpSelectSize(si, btn) {
 
 function pdpAddToCart(id) {
   if (pdpState.sizeIdx === null) {
-    document.getElementById("pdpSizeAlert").classList.add("show");
-    document.getElementById("pdpSizesRow").scrollIntoView({ behavior:"smooth", block:"center" });
+    const alert = document.getElementById("pdpSizeAlert");
+    if (alert) alert.classList.add("show");
+    document.getElementById("pdpSizesRow")?.scrollIntoView({ behavior:"smooth", block:"center" });
+    showToast("Sélectionnez une taille avant d'ajouter");
     return;
   }
   const p = CATALOGUE.find(x => x.id === id);
@@ -430,16 +432,16 @@ function pdpAddToCart(id) {
   const v = p.variants[pdpState.variantIdx];
   const size = p.sizes[pdpState.sizeIdx];
   addToCart({ product:p, variant:v, size, qty:1 });
-  showToast("✓ Ajouté — " + p.name + " / " + size);
+  showToast("✓ Ajouté — " + p.name + " · " + size);
 }
 
 function pdpToggleWish() {
   pdpState.wished = !pdpState.wished;
   const btn = document.getElementById("pdpWishBtn");
   if (btn) {
-    btn.textContent = pdpState.wished ? "❤️ Ajouté aux favoris" : "🤍 Ajouter aux favoris";
+    btn.textContent = pdpState.wished ? "♥ Ajouté aux favoris" : "♡ Ajouter aux favoris";
     btn.classList.toggle("active", pdpState.wished);
-    if (pdpState.wished) showToast("💕 Ajouté à vos favoris");
+    if (pdpState.wished) showToast("Ajouté à vos favoris");
   }
 }
 
@@ -475,28 +477,33 @@ function changeQty(key, delta) {
 }
 
 function renderCart() {
-  const itemsEl = document.getElementById("cartItems");
-  const totalEl = document.getElementById("cartTotal");
+  const itemsEl    = document.getElementById("cartItems");
+  const totalEl    = document.getElementById("cartTotal");
   const subtotalEl = document.getElementById("cartSubtotal");
   const totalQty    = cart.reduce((a,c) => a + c.qty, 0);
   const totalAmount = cart.reduce((a,c) => a + c.product.price * c.qty, 0);
 
-  // Badges
   document.querySelectorAll(".cart-badge").forEach(b => {
     b.textContent = totalQty;
     b.classList.toggle("show", totalQty > 0);
   });
 
-  if (totalEl) totalEl.textContent = fmt(totalAmount);
+  if (totalEl)    totalEl.textContent    = fmt(totalAmount);
   if (subtotalEl) subtotalEl.textContent = fmt(totalAmount);
 
-  // Header count
   const countLbl = document.getElementById("cartCountLabel");
   if (countLbl) countLbl.textContent = totalQty > 0 ? `(${totalQty} article${totalQty>1?"s":""})` : "";
 
   if (!itemsEl) return;
   if (cart.length === 0) {
-    itemsEl.innerHTML = `<div class="cart-empty"><div style="font-size:48px;margin-bottom:16px">🛍️</div>Votre panier est vide.<br><br><button class="btn-primary" onclick="toggleCart();navigate('/')" style="font-size:10px;padding:12px 24px">Découvrir la collection</button></div>`;
+    itemsEl.innerHTML = `<div class="cart-empty">
+      <div style="font-size:40px;margin-bottom:16px">🛍</div>
+      Votre panier est vide.<br><br>
+      <button class="btn-primary" onclick="toggleCart();navigate('/')"
+              style="font-size:10px;padding:12px 24px">
+        Découvrir la collection
+      </button>
+    </div>`;
     return;
   }
   itemsEl.innerHTML = cart.map(c => `
@@ -519,7 +526,8 @@ function renderCart() {
 }
 
 function goToCheckout() {
-  if (cart.length === 0) { showToast("Votre panier est vide !"); return; }
+  // Délégué à auth.js — redéfini là-bas avec vérification de session
+  if (cart.length === 0) { showToast("Votre panier est vide"); return; }
   toggleCart();
   navigate("/checkout");
 }
@@ -532,14 +540,14 @@ let selectedPayMethod = null;
 function renderCheckout() {
   if (cart.length === 0) { navigate("/"); return; }
   const totalAmount = cart.reduce((a,c) => a + c.product.price * c.qty, 0);
+  const fcfaApprox  = Math.round(totalAmount * 655.957);
 
-  // Récap sidebar
   const recapEl = document.getElementById("recapItems");
   if (recapEl) {
     recapEl.innerHTML = cart.map(c => `
       <div class="recap-item">
         <img src="${c.variant.image}" alt="${c.product.name}" class="recap-item-img"
-             onerror="this.style.background='var(--blush)'">
+             onerror="this.style.background='var(--border)'">
         <div>
           <div class="recap-item-name">${c.product.name}</div>
           <div class="recap-item-meta">${c.variant.label} · ${c.size} · ×${c.qty}</div>
@@ -547,7 +555,23 @@ function renderCheckout() {
         <div class="recap-item-price">${fmt(c.product.price * c.qty)}</div>
       </div>`).join("");
   }
-  document.querySelectorAll(".recap-total-amount").forEach(el => el.textContent = fmt(totalAmount));
+
+  document.querySelectorAll(".recap-total-amount").forEach(el => {
+    el.textContent = fmt(totalAmount);
+  });
+
+  const fcfaNote = document.getElementById("recapFcfaNote");
+  if (fcfaNote) fcfaNote.textContent = `≈ ${fcfaApprox.toLocaleString("fr")} FCFA`;
+
+  // Google Places autocomplete sur l'adresse de livraison
+  if (typeof initAddressAutocomplete === "function") {
+    initAddressAutocomplete("co-address", ({ address, city, postalCode, country }) => {
+      if (address)    { const el = document.getElementById("co-address"); if (el) el.value = address; }
+      if (postalCode) { const el = document.getElementById("co-postal");  if (el) el.value = postalCode; }
+      if (city)       { const el = document.getElementById("co-city");    if (el) el.value = city; }
+      if (country)    { const el = document.getElementById("co-country"); if (el) el.value = country; }
+    });
+  }
 }
 
 function selectPayMethod(method, btn) {
@@ -584,15 +608,12 @@ function validateAndPay() {
 
   const totalAmount = cart.reduce((a,c) => a + c.product.price * c.qty, 0);
 
-  if (selectedPayMethod === "card") {
+  if (selectedPayMethod === "card" || selectedPayMethod === "wallet") {
     processStripePayment(totalAmount, name, email);
   } else if (selectedPayMethod === "wave") {
-    processWavePayDunya(totalAmount, name, email, phone);
+    processWavePayDunya(totalAmount);
   } else if (selectedPayMethod === "orange") {
-    processOrangePayDunya(totalAmount, name, email, phone);
-  } else if (selectedPayMethod === "wallet") {
-    showToast("Redirection vers le paiement…");
-    processStripePayment(totalAmount, name, email);
+    processOrangePayDunya(totalAmount);
   }
 }
 
@@ -610,12 +631,12 @@ function showToast(msg) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   WISHLIST rapide
+   WISHLIST
 ══════════════════════════════════════════════════════════════ */
 function toggleWish(btn) {
   const w = btn.textContent === "❤️";
   btn.textContent = w ? "🤍" : "❤️";
-  if (!w) showToast("💕 Ajouté à vos favoris");
+  if (!w) showToast("Ajouté à vos favoris");
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -635,7 +656,7 @@ function subscribe() {
   if (!input) return;
   if (!input.value.trim().includes("@")) { showToast("Entrez un email valide"); return; }
   input.value = "";
-  showToast("🌸 Inscrite à la newsletter YARAÏ !");
+  showToast("Inscrite à la newsletter YARAÏ");
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -644,7 +665,7 @@ function subscribe() {
 function initReveal() {
   const obs = new IntersectionObserver(entries => {
     entries.forEach((e,i) => {
-      if (e.isIntersecting) setTimeout(() => e.target.classList.add("visible"), i*80);
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add("visible"), i*70);
     });
   }, { threshold:.1 });
   document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
