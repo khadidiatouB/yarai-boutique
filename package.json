@@ -4,6 +4,7 @@
   "description": "Backend paiement YARAÏ — Stripe + CinetPay",
   "main": "server.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "start": "node server.js",
     "build": "npx prisma generate",
     "dev": "nodemon server.js",

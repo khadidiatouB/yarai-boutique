@@ -8,3 +8,4 @@ prisma/migrations/
 Thumbs.db
 reset-admin.js
 verify-account.js
+prisma.config.ts
