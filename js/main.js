@@ -110,6 +110,23 @@ const CATALOGUE = [
     details: { Matière: "95% Polyester satiné, 5% Élasthanne", Longueur: "Midi (env. 75 cm)", Coupe: "Sirène", Livraison: "5–10 jours ouvrés" }
   },
 
+  /* ── 7 · Jupe Rayée Nouée ── */
+  {
+    id: "jupe-rayee-noeud",
+    name: "Jupe Rayée Nouée",
+    cat: "coton-raye",
+    coupe: "Asymétrique nouée",
+    price: 65,
+    badge: "Nouveau",
+    sizes: ["XS","S","M","L","XL"],
+    variants: [
+      { label: "Rayure marine", image: "assets/noeud_marine.png", color: "#2C4F8A" },
+      { label: "Rayure champagne", image: "assets/noeud_champagne.png", color: "#E8E0D0" },
+    ],
+    desc: "Une jupe midi en coton rayé avec un nœud architectural noué sur le côté. La coupe asymétrique crée un tombé fluide et dramatique — une pièce signature qui se distingue à chaque mouvement.",
+    details: { Matière: "100% Coton popeline", Longueur: "Midi asymétrique (env. 75–95 cm)", Coupe: "Asymétrique nouée", Livraison: "5–10 jours ouvrés" }
+  },
+
 ];
 
 /* ══════════════════════════════════════════════════════════════

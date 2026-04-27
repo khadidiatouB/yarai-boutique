@@ -825,6 +825,17 @@ app.get("/health", (_req, res) => res.json({ status: "YARAÏ server OK" }));
 
 const PORT = process.env.PORT || 3000;
 
+/* ── Catalogue produits (doit correspondre à js/main.js CATALOGUE) ── */
+const CATALOGUE_PRODUCTS = [
+  { id:"jupe-evasee-denim",     name:"Jupe Évasée Denim",    category:"jeans",      price:69, badge:null,         variants:["Bleu indigo","Terracotta","Soleil"],         sizes:["XS","S","M","L","XL"], qty:8  },
+  { id:"jupe-droite-jean",      name:"Jupe Droite Jean",     category:"jeans",      price:59, badge:"Nouveau",    variants:["Noir délavé","Marron tabac"],                sizes:["XS","S","M","L","XL"], qty:8  },
+  { id:"jupe-trapeze-rayee",    name:"Jupe Rayée Trapèze",   category:"coton-raye", price:49, badge:null,         variants:["Rayure marine","Blanc optique"],             sizes:["XS","S","M","L","XL"], qty:10 },
+  { id:"jupe-paysanne-coton",   name:"Jupe Paysanne Coton",  category:"coton-uni",  price:55, badge:"Best-seller",variants:["Noir","Écru","Marron"],                      sizes:["XS","S","M","L","XL"], qty:12 },
+  { id:"jupe-imprimee-volants", name:"Jupe Longue Imprimée", category:"imprime",    price:65, badge:null,         variants:["Imprimé fleuri","Imprimé graphique"],        sizes:["XS","S","M","L","XL"], qty:6  },
+  { id:"jupe-satin-sirene",     name:"Jupe Midi Satin",      category:"satin",      price:79, badge:null,         variants:["Noir","Marron","Léopard"],                   sizes:["XS","S","M","L","XL"], qty:6  },
+  { id:"jupe-rayee-noeud",      name:"Jupe Rayée Nouée",     category:"coton-raye", price:65, badge:"Nouveau",    variants:["Rayure marine","Rayure champagne"],          sizes:["XS","S","M","L","XL"], qty:8  },
+];
+
 async function migrate() {
   try {
     await pool.query(`ALTER TABLE "Order"    ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT`);
@@ -832,7 +843,28 @@ async function migrate() {
     await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "birthdate"      TIMESTAMP`);
     await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "loyaltyPoints"  INTEGER NOT NULL DEFAULT 0`);
     await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "postalCode"     TEXT`);
-  } catch (e) { console.warn("migrate:", e.message); }
+  } catch (e) { console.warn("migrate colonnes:", e.message); }
+
+  /* Synchronise les produits du catalogue avec la base de données */
+  try {
+    for (const p of CATALOGUE_PRODUCTS) {
+      await prisma.product.upsert({
+        where:  { id: p.id },
+        update: { name: p.name, price: p.price, badge: p.badge },
+        create: { id: p.id, name: p.name, category: p.category, price: p.price, badge: p.badge ?? null, badgeColor: null, description: null },
+      });
+      for (const variant of p.variants) {
+        for (const size of p.sizes) {
+          await prisma.stock.upsert({
+            where:  { productId_variant_size: { productId: p.id, variant, size } },
+            update: {},
+            create: { productId: p.id, variant, size, qty: p.qty },
+          });
+        }
+      }
+    }
+    console.log("✅ Produits synchronisés en base");
+  } catch (e) { console.warn("migrate produits:", e.message); }
 }
 
 migrate().then(() => {

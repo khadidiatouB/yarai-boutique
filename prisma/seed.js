@@ -3,141 +3,124 @@
  * Initialise les produits et le stock de départ
  *
  * Usage : node prisma/seed.js
+ *
+ * IMPORTANT : Les IDs produits ici doivent correspondre exactement
+ * aux IDs dans js/main.js (CATALOGUE) pour que les commandes fonctionnent.
  */
 
 require("dotenv").config();
-const { Pool }          = require("pg");
-const { PrismaPg }      = require("@prisma/adapter-pg");
-const { PrismaClient }  = require("@prisma/client");
+const { Pool }         = require("pg");
+const { PrismaPg }     = require("@prisma/adapter-pg");
+const { PrismaClient } = require("@prisma/client");
 
-const pool   = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool    = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma  = new PrismaClient({ adapter });
 
+/* Prix en EUR — correspond exactement aux prix du CATALOGUE (js/main.js) */
 const PRODUCTS = [
   {
-    id: "naya-imprime-orange",
-    name: "Naya Imprimé",
-    category: "ensemble",
-    price: 28500,
-    badge: "Nouveau",
-    badgeColor: "terra",
-    description: "Ensemble asymétrique en tissu imprimé de motifs calligraphiques.",
-    variants: ["Terracotta imprimé", "Sable imprimé"],
-    sizes: ["XS", "S", "M", "L"],
-    stockQty: 5,
+    id:          "jupe-evasee-denim",
+    name:        "Jupe Évasée Denim",
+    category:    "jeans",
+    price:       69,
+    badge:       null,
+    description: "Une jupe évasée en denim premium qui allie structure et fluidité.",
+    variants:    ["Bleu indigo", "Terracotta", "Soleil"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    8,
   },
   {
-    id: "naya-marron",
-    name: "Naya Uni",
-    category: "ensemble",
-    price: 26000,
-    badge: "Best-seller",
-    badgeColor: "gold",
-    description: "La version uni du best-seller Naya.",
-    variants: ["Vert uni", "Marron uni"],
-    sizes: ["S", "M", "L"],
-    stockQty: 8,
+    id:          "jupe-droite-jean",
+    name:        "Jupe Droite Jean",
+    category:    "jeans",
+    price:       59,
+    badge:       "Nouveau",
+    description: "La jupe droite, pièce intemporelle réinventée en denim structuré.",
+    variants:    ["Noir délavé", "Marron tabac"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    8,
   },
   {
-    id: "luma",
-    name: "Luma",
-    category: "ensemble",
-    price: 26000,
-    badge: "Limité",
-    badgeColor: "deep",
-    description: "L'ensemble Luma se distingue par son col drapé enveloppant.",
-    variants: ["Vert", "Marron", "Noir"],
-    sizes: ["S", "M", "L"],
-    stockQty: 4,
+    id:          "jupe-trapeze-rayee",
+    name:        "Jupe Rayée Trapèze",
+    category:    "coton-raye",
+    price:       49,
+    badge:       null,
+    description: "Légère et graphique, cette jupe trapèze en coton rayé capture l'essence de l'été.",
+    variants:    ["Rayure marine", "Blanc optique"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    10,
   },
   {
-    id: "skirt-solea",
-    name: "Jupe Solea",
-    category: "jupe",
-    price: 13000,
-    badge: null,
-    badgeColor: "deep",
-    description: "Jupe longue paysanne à taille haute.",
-    variants: ["Noir", "Marron", "Blanc"],
-    sizes: ["S", "M", "L"],
-    stockQty: 10,
+    id:          "jupe-paysanne-coton",
+    name:        "Jupe Paysanne Coton",
+    category:    "coton-uni",
+    price:       55,
+    badge:       "Best-seller",
+    description: "Taille haute, coupe paysanne ample : cette jupe en coton uni épuré sublime toutes les morphologies.",
+    variants:    ["Noir", "Écru", "Marron"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    12,
   },
   {
-    id: "skirt-azura",
-    name: "Jupe Azura",
-    category: "jupe",
-    price: 13000,
-    badge: "Limité",
-    badgeColor: "deep",
-    description: "Jupe mi-longue aux rayures graphiques.",
-    variants: ["Rayure Blue", "Blanc"],
-    sizes: ["S", "M", "L"],
-    stockQty: 6,
+    id:          "jupe-imprimee-volants",
+    name:        "Jupe Longue Imprimée",
+    category:    "imprime",
+    price:       65,
+    badge:       null,
+    description: "Chaque volant révèle une nouvelle dimension du mouvement.",
+    variants:    ["Imprimé fleuri", "Imprimé graphique"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    6,
   },
   {
-    id: "skirt-alya",
-    name: "Jupe Alya",
-    category: "jupe",
-    price: 12000,
-    badge: "Limité",
-    badgeColor: "deep",
-    description: "Jupe longue asymétrique, esprit côtier et estival.",
-    variants: ["Jaune", "Bleu", "Terracotta"],
-    sizes: ["S", "M", "L"],
-    stockQty: 6,
+    id:          "jupe-satin-sirene",
+    name:        "Jupe Midi Satin",
+    category:    "satin",
+    price:       79,
+    badge:       null,
+    description: "Silhouette moulante, tombé soyeux.",
+    variants:    ["Noir", "Marron", "Léopard"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    6,
   },
   {
-    id: "skirt-safia",
-    name: "Jupe Safia",
-    category: "jupe",
-    price: 15000,
-    badge: "Limité",
-    badgeColor: "deep",
-    description: "Jupe longue à multi-volants qui crée du mouvement à chaque pas.",
-    variants: ["Imprimé", "Imprimé 2"],
-    sizes: ["S", "M", "L"],
-    stockQty: 5,
-  },
-  {
-    id: "skirt-mira",
-    name: "Jupe Mira",
-    category: "jupe",
-    price: 10000,
-    badge: "Limité",
-    badgeColor: "deep",
-    description: "Jupe longue sirène, esprit côtier et estival.",
-    variants: ["Marron", "Noir", "Leopard"],
-    sizes: ["S", "M", "L"],
-    stockQty: 5,
+    id:          "jupe-rayee-noeud",
+    name:        "Jupe Rayée Nouée",
+    category:    "coton-raye",
+    price:       65,
+    badge:       "Nouveau",
+    description: "Jupe midi asymétrique en coton rayé avec nœud sur le côté.",
+    variants:    ["Rayure marine", "Rayure champagne"],
+    sizes:       ["XS", "S", "M", "L", "XL"],
+    stockQty:    8,
   },
 ];
 
 async function main() {
-  console.log("🌱 Seed en cours...");
+  console.log("🌱 Seed en cours…");
 
   for (const p of PRODUCTS) {
-    // Upsert produit
     await prisma.product.upsert({
-      where: { id: p.id },
+      where:  { id: p.id },
       update: { name: p.name, price: p.price, badge: p.badge, description: p.description },
       create: {
         id:          p.id,
         name:        p.name,
         category:    p.category,
         price:       p.price,
-        badge:       p.badge,
-        badgeColor:  p.badgeColor,
-        description: p.description,
+        badge:       p.badge       ?? null,
+        badgeColor:  p.badgeColor  ?? null,
+        description: p.description ?? null,
       },
     });
 
-    // Upsert stock pour chaque combinaison variante × taille
     for (const variant of p.variants) {
       for (const size of p.sizes) {
         await prisma.stock.upsert({
-          where: { productId_variant_size: { productId: p.id, variant, size } },
-          update: {},  // ne pas écraser le stock existant
+          where:  { productId_variant_size: { productId: p.id, variant, size } },
+          update: {},
           create: { productId: p.id, variant, size, qty: p.stockQty },
         });
       }
@@ -150,5 +133,5 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
+  .catch(e => { console.error(e); process.exit(1); })
   .finally(async () => { await prisma.$disconnect(); });
