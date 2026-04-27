@@ -833,7 +833,8 @@ const CATALOGUE_PRODUCTS = [
   { id:"jupe-paysanne-coton",   name:"Jupe Paysanne Coton",  category:"coton-uni",  price:55, badge:"Best-seller",variants:["Noir","Écru","Marron"],                      sizes:["XS","S","M","L","XL"], qty:12 },
   { id:"jupe-imprimee-volants", name:"Jupe Longue Imprimée", category:"imprime",    price:65, badge:null,         variants:["Imprimé fleuri","Imprimé graphique"],        sizes:["XS","S","M","L","XL"], qty:6  },
   { id:"jupe-satin-sirene",     name:"Jupe Midi Satin",      category:"satin",      price:79, badge:null,         variants:["Noir","Marron","Léopard"],                   sizes:["XS","S","M","L","XL"], qty:6  },
-  { id:"jupe-rayee-noeud",      name:"Jupe Rayée Nouée",     category:"coton-raye", price:65, badge:"Nouveau",    variants:["Rayure marine","Rayure champagne"],          sizes:["XS","S","M","L","XL"], qty:8  },
+  { id:"jupe-a-pois",           name:"Jupe à Pois",          category:"imprime",    price:59, badge:"Nouveau",    variants:["Beige pois noir","Blanc pois noir"],     sizes:["XS","S","M","L","XL"], qty:10 },
+  { id:"jupe-rayee-noeud",      name:"Jupe Rayée Nouée",     category:"coton-raye", price:65, badge:"Nouveau",    variants:["Rayure marine","Rayure blanc"],          sizes:["XS","S","M","L","XL"], qty:8  },
 ];
 
 async function migrate() {

@@ -110,7 +110,28 @@ const CATALOGUE = [
     details: { Matière: "95% Polyester satiné, 5% Élasthanne", Longueur: "Midi (env. 75 cm)", Coupe: "Sirène", Livraison: "5–10 jours ouvrés" }
   },
 
-  /* ── 7 · Jupe Rayée Nouée ── */
+  /* ── 7 · Jupe à Pois ── */
+  {
+    id: "jupe-a-pois",
+    name: "Jupe à Pois",
+    cat: "imprime",
+    coupe: "Évasée",
+    price: 59,
+    badge: "Nouveau",
+    sizes: ["XS","S","M","L","XL"],
+    variants: [
+      { label: "Beige pois noir", image: "assets/jupe_a_pois_beige.png",  color: "#D4C5A9" },
+      { label: "Blanc pois noir", image: "assets/jupe_a_pois_blanc.png",  color: "#F4F0EA" },
+    ],
+    extraImages: {
+      "Beige pois noir": ["assets/jupe_a_pois_beige.png", "assets/jupe_a_pois_beige1.png"],
+      "Blanc pois noir": ["assets/jupe_a_pois_blanc.png", "assets/jupe_a_pois_blanc1.png"],
+    },
+    desc: "Légèreté et caractère : cette jupe évasée à pois en coton imprimé joue la carte du classique revisité. Le motif pois intemporel se décline en deux coloris élégants pour une allure chic et accessible.",
+    details: { Matière: "100% Coton imprimé", Longueur: "Midi (env. 72 cm)", Coupe: "Évasée", Livraison: "5–10 jours ouvrés" }
+  },
+
+  /* ── 8 · Jupe Rayée Nouée ── */
   {
     id: "jupe-rayee-noeud",
     name: "Jupe Rayée Nouée",
@@ -120,8 +141,8 @@ const CATALOGUE = [
     badge: "Nouveau",
     sizes: ["XS","S","M","L","XL"],
     variants: [
-      { label: "Rayure marine", image: "assets/noeud_marine.png", color: "#2C4F8A" },
-      { label: "Rayure champagne", image: "assets/noeud_champagne.png", color: "#E8E0D0" },
+      { label: "Rayure marine", image: "assets/jupe_rayure_noeud.png",   color: "#2C4F8A" },
+      { label: "Rayure blanc",  image: "assets/jupe_rayure_noeud_1.png", color: "#E8E0D0" },
     ],
     desc: "Une jupe midi en coton rayé avec un nœud architectural noué sur le côté. La coupe asymétrique crée un tombé fluide et dramatique — une pièce signature qui se distingue à chaque mouvement.",
     details: { Matière: "100% Coton popeline", Longueur: "Midi asymétrique (env. 75–95 cm)", Coupe: "Asymétrique nouée", Livraison: "5–10 jours ouvrés" }
