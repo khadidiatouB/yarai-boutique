@@ -532,7 +532,11 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
-    await sendVerificationEmail(customer, verifyToken);
+    try {
+      await sendVerificationEmail(customer, verifyToken);
+    } catch (mailErr) {
+      console.error("Email vérification non envoyé (compte créé quand même) :", mailErr.message);
+    }
 
     res.status(201).json({ needsVerification: true, email: customer.email });
   } catch (err) {
@@ -588,7 +592,11 @@ app.post("/api/auth/resend", async (req, res) => {
     const verifyToken  = crypto.randomBytes(32).toString("hex");
     const verifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await prisma.customer.update({ where: { id: customer.id }, data: { verifyToken, verifyExpiry } });
-    await sendVerificationEmail({ ...customer, verifyToken }, verifyToken);
+    try {
+      await sendVerificationEmail({ ...customer, verifyToken }, verifyToken);
+    } catch (mailErr) {
+      console.error("Email renvoi vérification échoué :", mailErr.message);
+    }
 
     res.json({ ok: true });
   } catch (err) {
