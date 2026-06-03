@@ -847,11 +847,39 @@ const CATALOGUE_PRODUCTS = [
 
 async function migrate() {
   try {
-    await pool.query(`ALTER TABLE "Order"    ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT`);
-    await pool.query(`ALTER TABLE "Order"    ADD COLUMN IF NOT EXISTS "deliveryNotes"  TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "birthdate"      TIMESTAMP`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "loyaltyPoints"  INTEGER NOT NULL DEFAULT 0`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "postalCode"     TEXT`);
+    /* Order */
+    await pool.query(`ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT`);
+    await pool.query(`ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryNotes"  TEXT`);
+
+    /* Customer — colonnes de base */
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "phone"         TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "address"       TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "city"          TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "country"       TEXT`);
+
+    /* Customer — authentification */
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "password"      TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verified"      BOOLEAN NOT NULL DEFAULT false`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verifyToken"   TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verifyExpiry"  TIMESTAMP`);
+
+    /* Contrainte UNIQUE sur verifyToken (si pas encore présente) */
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'Customer_verifyToken_key'
+        ) THEN
+          ALTER TABLE "Customer" ADD CONSTRAINT "Customer_verifyToken_key" UNIQUE ("verifyToken");
+        END IF;
+      END $$;
+    `);
+
+    /* Customer — profil étendu */
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "postalCode"    TEXT`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "birthdate"     TIMESTAMP`);
+    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "loyaltyPoints" INTEGER NOT NULL DEFAULT 0`);
+
+    console.log("✅ Colonnes vérifiées");
   } catch (e) { console.warn("migrate colonnes:", e.message); }
 
   /* Synchronise les produits du catalogue avec la base de données */
