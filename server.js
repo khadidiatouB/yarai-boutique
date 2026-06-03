@@ -495,7 +495,7 @@ async function sendVerificationEmail(customer, token) {
         </p>
 
         <hr style="border:none;border-top:1px solid #E8E4DF;margin:36px 0 20px">
-        <p style="font-size:11px;color:#6B6B6B;margin:0">© 2025 YARAÏ — Tous droits réservés</p>
+        <p style="font-size:11px;color:#6B6B6B;margin:0">© 2026 YARAÏ — Tous droits réservés</p>
       </div>
     `,
   });
