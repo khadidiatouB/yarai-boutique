@@ -845,42 +845,44 @@ const CATALOGUE_PRODUCTS = [
   { id:"jupe-rayee-noeud",      name:"Jupe Rayée Nouée",     category:"coton-raye", price:65, badge:"Nouveau",    variants:["Rayure marine","Rayure blanc"],          sizes:["XS","S","M","L","XL"], qty:8  },
 ];
 
-async function migrate() {
+/* Exécute chaque requête isolément : une erreur n'empêche pas les suivantes */
+async function runMigrationStep(label, sql) {
   try {
-    /* Order */
-    await pool.query(`ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT`);
-    await pool.query(`ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryNotes"  TEXT`);
+    await pool.query(sql);
+  } catch (e) {
+    console.warn(`migrate [${label}]:`, e.message);
+  }
+}
 
-    /* Customer — colonnes de base */
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "phone"         TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "address"       TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "city"          TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "country"       TEXT`);
+async function migrate() {
+  await runMigrationStep("Order.trackingNumber", `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "trackingNumber" TEXT`);
+  await runMigrationStep("Order.deliveryNotes",  `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryNotes"  TEXT`);
 
-    /* Customer — authentification */
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "password"      TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verified"      BOOLEAN NOT NULL DEFAULT false`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verifyToken"   TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verifyExpiry"  TIMESTAMP`);
+  await runMigrationStep("Customer.phone",   `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "phone"   TEXT`);
+  await runMigrationStep("Customer.address", `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "address" TEXT`);
+  await runMigrationStep("Customer.city",    `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "city"    TEXT`);
+  await runMigrationStep("Customer.country", `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "country" TEXT`);
 
-    /* Contrainte UNIQUE sur verifyToken (si pas encore présente) */
-    await pool.query(`
-      DO $$ BEGIN
-        IF NOT EXISTS (
-          SELECT 1 FROM pg_constraint WHERE conname = 'Customer_verifyToken_key'
-        ) THEN
-          ALTER TABLE "Customer" ADD CONSTRAINT "Customer_verifyToken_key" UNIQUE ("verifyToken");
-        END IF;
-      END $$;
-    `);
+  await runMigrationStep("Customer.password",     `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "password"     TEXT`);
+  await runMigrationStep("Customer.verified",     `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verified"     BOOLEAN NOT NULL DEFAULT false`);
+  await runMigrationStep("Customer.verifyToken",  `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verifyToken"  TEXT`);
+  await runMigrationStep("Customer.verifyExpiry", `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "verifyExpiry" TIMESTAMP`);
 
-    /* Customer — profil étendu */
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "postalCode"    TEXT`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "birthdate"     TIMESTAMP`);
-    await pool.query(`ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "loyaltyPoints" INTEGER NOT NULL DEFAULT 0`);
+  await runMigrationStep("Customer.verifyToken unique", `
+    DO $$ BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'Customer_verifyToken_key'
+      ) THEN
+        ALTER TABLE "Customer" ADD CONSTRAINT "Customer_verifyToken_key" UNIQUE ("verifyToken");
+      END IF;
+    END $$;
+  `);
 
-    console.log("✅ Colonnes vérifiées");
-  } catch (e) { console.warn("migrate colonnes:", e.message); }
+  await runMigrationStep("Customer.postalCode",    `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "postalCode"    TEXT`);
+  await runMigrationStep("Customer.birthdate",     `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "birthdate"     TIMESTAMP`);
+  await runMigrationStep("Customer.loyaltyPoints", `ALTER TABLE "Customer" ADD COLUMN IF NOT EXISTS "loyaltyPoints" INTEGER NOT NULL DEFAULT 0`);
+
+  console.log("✅ Colonnes vérifiées");
 
   /* Synchronise les produits du catalogue avec la base de données */
   try {
