@@ -13,9 +13,31 @@ const { PrismaClient }   = require("@prisma/client");
 require("dotenv").config();
 
 const app     = express();
-const pool    = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool    = new Pool({
+  connectionString:        process.env.DATABASE_URL,
+  max:                     10,
+  connectionTimeoutMillis: 15000, // laisse le temps au pooler Supabase de répondre s'il sort de pause
+  idleTimeoutMillis:       30000,
+  ssl:                     { rejectUnauthorized: false },
+});
+pool.on("error", (e) => console.warn("pg pool error:", e.message)); // évite un crash sur connexion idle coupée
 const adapter = new PrismaPg(pool);
 const prisma  = new PrismaClient({ adapter });
+
+/* Réessaie une opération DB en cas de timeout/connexion transitoire (ex: Supabase qui sort de pause) */
+async function withDbRetry(fn, attempts = 3) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try { return await fn(); }
+    catch (err) {
+      lastErr = err;
+      const transient = /timeout|ECONNRESET|ETIMEDOUT|ENOTFOUND|EAUTHTIMEOUT|Connection terminated/i.test(err.message || "");
+      if (!transient || i === attempts - 1) throw err;
+      await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
 
 // Servir les fichiers statiques du frontend (même serveur = pas de CORS)
 app.use(express.static(__dirname));
@@ -511,7 +533,7 @@ app.post("/api/auth/register", async (req, res) => {
     return res.status(400).json({ error: "Le mot de passe doit contenir au moins 8 caractères" });
 
   try {
-    const existing = await prisma.customer.findUnique({ where: { email } });
+    const existing = await withDbRetry(() => prisma.customer.findUnique({ where: { email } }));
 
     if (existing?.password && existing.verified)
       return res.status(409).json({ error: "Un compte existe déjà avec cet email. Connectez-vous." });
@@ -522,14 +544,14 @@ app.post("/api/auth/register", async (req, res) => {
 
     let customer;
     if (existing) {
-      customer = await prisma.customer.update({
+      customer = await withDbRetry(() => prisma.customer.update({
         where: { email },
         data: { name, phone: phone || existing.phone, password: hash, verified: false, verifyToken, verifyExpiry },
-      });
+      }));
     } else {
-      customer = await prisma.customer.create({
+      customer = await withDbRetry(() => prisma.customer.create({
         data: { name, email, phone: phone || null, password: hash, verified: false, verifyToken, verifyExpiry },
-      });
+      }));
     }
 
     try {
@@ -609,7 +631,7 @@ app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Email et mot de passe requis" });
   try {
-    const customer = await prisma.customer.findUnique({ where: { email } });
+    const customer = await withDbRetry(() => prisma.customer.findUnique({ where: { email } }));
     if (!customer || !customer.password)
       return res.status(401).json({ error: "Identifiants incorrects" });
     const valid = await bcrypt.compare(password, customer.password);
@@ -721,7 +743,7 @@ app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Email et mot de passe requis" });
   try {
-    const admin = await prisma.admin.findUnique({ where: { email } });
+    const admin = await withDbRetry(() => prisma.admin.findUnique({ where: { email } }));
     if (!admin || !(await bcrypt.compare(password, admin.password))) {
       return res.status(401).json({ error: "Identifiants incorrects" });
     }
