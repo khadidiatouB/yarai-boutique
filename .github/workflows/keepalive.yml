@@ -1,0 +1,15 @@
+name: Keep Supabase database alive
+
+on:
+  schedule:
+    # Toutes les 3 jours à 9h UTC — sous la limite de 7 jours d'inactivité de Supabase
+    - cron: "0 9 */3 * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/keepalive sur le site déployé
+        run: |
+          curl -fsS https://yarai.onrender.com/api/keepalive

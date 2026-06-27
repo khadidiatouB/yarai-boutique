@@ -831,6 +831,16 @@ app.get("/api/admin/dashboard", authAdmin, async (_req, res) => {
 ══════════════════════════════════════════════════════════════ */
 app.get("/health", (_req, res) => res.json({ status: "YARAÏ server OK" }));
 
+// GET /api/keepalive — requête DB réelle pour empêcher Supabase de se mettre en pause
+app.get("/api/keepalive", async (_req, res) => {
+  try {
+    const count = await prisma.product.count();
+    res.json({ ok: true, products: count, time: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 /* ── Catalogue produits (doit correspondre à js/main.js CATALOGUE) ── */
