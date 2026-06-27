@@ -577,6 +577,7 @@ let selectedPayMethod = null;
 
 function renderCheckout() {
   if (cart.length === 0) { navigate("/"); return; }
+  if (typeof resetStripeState === "function") resetStripeState();
   const totalAmount = cart.reduce((a,c) => a + c.product.price * c.qty, 0);
   const fcfaApprox  = Math.round(totalAmount * 655.957);
 
@@ -620,9 +621,15 @@ function selectPayMethod(method, btn) {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
   });
-  const show = { card:"card-fields", wave:"wave-fields", orange:"orange-fields", wallet:"wallet-fields" }[method];
+  // "wallet" affiche le même formulaire Stripe que "card" — Apple Pay / Google Pay
+  // y apparaissent automatiquement si disponibles sur l'appareil/navigateur
+  const show = { card:"card-fields", wave:"wave-fields", orange:"orange-fields", wallet:"card-fields" }[method];
   if (show) document.getElementById(show).style.display = "block";
   updateCheckoutStep(2);
+
+  if ((method === "card" || method === "wallet") && typeof preloadStripeElements === "function") {
+    preloadStripeElements();
+  }
 }
 
 function updateCheckoutStep(step) {
@@ -647,7 +654,7 @@ function validateAndPay() {
   const totalAmount = cart.reduce((a,c) => a + c.product.price * c.qty, 0);
 
   if (selectedPayMethod === "card" || selectedPayMethod === "wallet") {
-    processStripePayment(totalAmount, name, email);
+    processStripePayment(totalAmount);
   } else if (selectedPayMethod === "wave") {
     processWavePayDunya(totalAmount);
   } else if (selectedPayMethod === "orange") {

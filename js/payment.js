@@ -64,52 +64,41 @@ async function createOrder(customer, paymentMethod, amountEur) {
    STRIPE — Carte, Apple Pay, Google Pay
 ══════════════════════════════════════════════════════════════ */
 
-let stripe        = null;
+let stripe         = null;
 let stripeElements = null;
+let _pendingIntent = null; // { clientSecret, intentId } — pré-chargé dès la sélection de l'onglet
 
-async function processStripePayment(amountEur, name, email) {
-  const cfg    = await getConfig();
-  const payBtn = document.getElementById("btnPayFinal");
+function resetStripeState() {
+  _pendingIntent = null;
+  stripeElements = null;
+  // `stripe` (l'instance Stripe) est réutilisable, pas besoin de la réinitialiser
+}
 
-  if (!cfg.stripeKey || cfg.stripeKey.includes("VOTRE")) {
-    simulatePayment("Stripe (mode démo — clé non configurée)");
-    return;
+/* Pré-charge le formulaire Stripe dès que l'onglet carte/wallet est sélectionné,
+   pour permettre un paiement en un seul clic sur "Confirmer et payer" */
+async function preloadStripeElements() {
+  resetStripeState();
+  const cfg = await getConfig();
+  if (!cfg.stripeKey || cfg.stripeKey.includes("VOTRE")) return;
+
+  const totalAmount = cart.reduce((a, c) => a + c.product.price * c.qty, 0);
+  if (!totalAmount) return;
+
+  const mountPoint = document.getElementById("stripe-element");
+  if (mountPoint) {
+    mountPoint.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:.5px">Chargement sécurisé…</div>`;
   }
 
-  if (payBtn) { payBtn.disabled = true; payBtn.textContent = "Connexion au paiement…"; }
-
   try {
-    const customer = collectCustomer();
-
-    /* 1. Créer la commande en base */
-    const { orderId, reference } = await createOrder(customer, "card", amountEur);
-
-    /* 2. Créer le PaymentIntent (montant en centimes EUR) */
-    const res = await fetch("/api/create-payment-intent", {
+    const res = await fetch("/api/payment-intent/init", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount:         amountEur,   // server multiplie par 100 → centimes
-        orderId,
-        reference,
-        customer_name:  customer.name,
-        customer_email: customer.email,
-        customer_phone: customer.phone,
-        items: cart.map(c => ({
-          productId: c.product.id,
-          variant:   c.variant.label,
-          size:      c.size,
-          qty:       c.qty,
-        })),
-      }),
+      body:    JSON.stringify({ amount: totalAmount }),
     });
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({}));
-      throw new Error(e.error || "Erreur serveur");
-    }
-    const { clientSecret } = await res.json();
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Erreur serveur");
+    const { clientSecret, intentId } = await res.json();
+    _pendingIntent = { clientSecret, intentId };
 
-    /* 3. Initialiser Stripe Elements */
     if (!stripe) stripe = Stripe(cfg.stripeKey);
 
     stripeElements = stripe.elements({
@@ -135,45 +124,81 @@ async function processStripePayment(amountEur, name, email) {
     });
 
     const paymentElement = stripeElements.create("payment");
-    const mountPoint     = document.getElementById("stripe-element");
     if (mountPoint) { mountPoint.innerHTML = ""; paymentElement.mount("#stripe-element"); }
 
-    // Sauvegarder orderId pour la page confirmation
-    sessionStorage.setItem("yarai_stripe_order", JSON.stringify({ orderId, reference }));
-
-    if (payBtn) {
-      payBtn.disabled    = false;
-      payBtn.textContent = "Payer " + fmt(amountEur) + " →";
-      payBtn.onclick     = confirmStripePayment;
-    }
-
   } catch (err) {
-    console.error("Stripe init error:", err);
-    showToast("Erreur : " + err.message);
-    if (payBtn) { payBtn.disabled = false; payBtn.textContent = "Réessayer →"; }
+    console.error("Stripe preload error:", err);
+    if (mountPoint) {
+      mountPoint.innerHTML = `<p style="color:#991B1B;font-size:12px;padding:8px 0">
+        Erreur de chargement (${err.message}).
+        <button onclick="preloadStripeElements()" style="font-size:11px;text-decoration:underline;background:none;border:none;cursor:pointer;color:#0A0A0A">Réessayer</button>
+      </p>`;
+    }
   }
 }
 
-async function confirmStripePayment() {
-  if (!stripe || !stripeElements) return;
+async function processStripePayment(amountEur) {
+  const cfg    = await getConfig();
   const payBtn = document.getElementById("btnPayFinal");
+
+  if (!cfg.stripeKey || cfg.stripeKey.includes("VOTRE")) {
+    simulatePayment("Stripe (mode démo — clé non configurée)");
+    return;
+  }
+
+  if (!stripeElements || !_pendingIntent) {
+    showToast("Le formulaire de paiement se charge encore — patientez un instant et réessayez.");
+    return;
+  }
+
   if (payBtn) { payBtn.disabled = true; payBtn.textContent = "Traitement en cours…"; }
 
-  const { error } = await stripe.confirmPayment({
-    elements: stripeElements,
-    confirmParams: {
-      // Stripe ajoute ?payment_intent=xxx&redirect_status=succeeded avant le #
-      return_url: window.location.origin + "/#/confirmation",
-    },
-  });
+  try {
+    const customer = collectCustomer();
 
-  // Seulement atteint en cas d'erreur (succès = redirection)
-  if (error) {
-    const msg = error.type === "card_error" || error.type === "validation_error"
-      ? error.message
-      : "Une erreur est survenue. Réessayez.";
-    showToast("❌ " + msg);
-    if (payBtn) { payBtn.disabled = false; payBtn.textContent = "Réessayer →"; }
+    /* 1. Créer la commande en base */
+    const { orderId, reference } = await createOrder(customer, "card", amountEur);
+
+    /* 2. Attacher la commande à l'intent déjà pré-chargé */
+    const patchRes = await fetch(`/api/payment-intent/${_pendingIntent.intentId}`, {
+      method:  "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderId,
+        reference,
+        customer_email: customer.email,
+        customer_name:  customer.name,
+        customer_phone: customer.phone,
+      }),
+    });
+    if (!patchRes.ok) {
+      const e = await patchRes.json().catch(() => ({}));
+      throw new Error(e.error || "Erreur serveur");
+    }
+
+    sessionStorage.setItem("yarai_stripe_order", JSON.stringify({ orderId, reference }));
+
+    /* 3. Confirmer le paiement (carte ou Apple/Google Pay saisi dans le formulaire) */
+    const { error } = await stripe.confirmPayment({
+      elements: stripeElements,
+      confirmParams: {
+        // Stripe ajoute ?payment_intent=xxx&redirect_status=succeeded avant le #
+        return_url: window.location.origin + "/#/confirmation",
+      },
+    });
+
+    // Seulement atteint en cas d'erreur (succès = redirection)
+    if (error) {
+      const msg = error.type === "card_error" || error.type === "validation_error"
+        ? error.message
+        : "Une erreur est survenue. Réessayez.";
+      showToast("❌ " + msg);
+      if (payBtn) { payBtn.disabled = false; payBtn.textContent = "Confirmer et payer →"; }
+    }
+  } catch (err) {
+    console.error("Stripe error:", err);
+    showToast("Erreur : " + err.message);
+    if (payBtn) { payBtn.disabled = false; payBtn.textContent = "Confirmer et payer →"; }
   }
 }
 
@@ -203,11 +228,11 @@ function handleStripeReturn() {
 
 async function processPayDunya(amountEur, channel) {
   const payBtn = document.getElementById("btnPayFinal");
+  const cfg    = await getConfig();
 
-  const cfg = await getConfig();
-  // Si clés PayDunya non configurées → simulation
-  if (!process || typeof window !== "undefined") {
-    // Vérification côté serveur uniquement — on laisse le serveur décider
+  if (!cfg.paydunyaReady) {
+    simulatePayment(channel === "WAVE_SN" ? "Wave (mode démo — PayDunya non configuré)" : "Orange Money (mode démo — PayDunya non configuré)");
+    return;
   }
 
   if (payBtn) { payBtn.disabled = true; payBtn.textContent = "Redirection vers le paiement…"; }

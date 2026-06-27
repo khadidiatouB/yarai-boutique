@@ -43,7 +43,7 @@ async function withDbRetry(fn, attempts = 3) {
 app.use(express.static(__dirname));
 app.use(express.json());
 
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY ? require("stripe")(process.env.STRIPE_SECRET_KEY) : null;
 
 const PAYDUNYA_BASE = process.env.PAYDUNYA_MODE === "test"
   ? "https://app.paydunya.com/sandbox-api/v1"
@@ -55,6 +55,15 @@ const paydunyaHeaders = {
   "PAYDUNYA-TOKEN":       process.env.PAYDUNYA_TOKEN,
   "Content-Type": "application/json",
 };
+
+/* Détecte les clés placeholder (ex: "**********" ou "VOTRE_CLE") pour éviter
+   de créer une commande vouée à échouer faute de configuration réelle */
+function isPlaceholder(val) {
+  return !val || val.includes("*") || val.toUpperCase().includes("VOTRE");
+}
+const PAYDUNYA_READY = !isPlaceholder(process.env.PAYDUNYA_MASTER_KEY)
+  && !isPlaceholder(process.env.PAYDUNYA_PRIVATE_KEY)
+  && !isPlaceholder(process.env.PAYDUNYA_TOKEN);
 
 /* ══════════════════════════════════════════════════════════════
    STOCK
@@ -102,7 +111,55 @@ app.post("/api/stock/check", async (req, res) => {
    STRIPE
 ══════════════════════════════════════════════════════════════ */
 
+// POST /api/payment-intent/init — pré-création (sans commande) pour charger
+// le formulaire Stripe dès la sélection de l'onglet carte/wallet (paiement en 1 clic)
+app.post("/api/payment-intent/init", async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: "Stripe non configuré sur le serveur" });
+  const { amount } = req.body;
+  if (!amount || amount <= 0) return res.status(400).json({ error: "Montant invalide" });
+  try {
+    const intent = await stripe.paymentIntents.create({
+      amount:   Math.round(amount * 100),
+      currency: "eur",
+      automatic_payment_methods: { enabled: true },
+    });
+    res.json({ clientSecret: intent.client_secret, intentId: intent.id });
+  } catch (err) {
+    console.error("Stripe init error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /api/payment-intent/:id — attache la commande (créée juste avant confirmation) à l'intent pré-chargé
+app.patch("/api/payment-intent/:id", async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: "Stripe non configuré sur le serveur" });
+  const { orderId, reference, customer_email, customer_name, customer_phone } = req.body;
+  try {
+    await stripe.paymentIntents.update(req.params.id, {
+      description:   `Commande YARAÏ${reference ? " — " + reference : ""}`,
+      receipt_email: customer_email,
+      metadata: {
+        orderId:        String(orderId || ""),
+        reference:      reference      || "",
+        customer_name:  customer_name  || "",
+        customer_phone: customer_phone || "",
+      },
+    });
+    if (orderId) {
+      await prisma.order.update({
+        where: { id: parseInt(orderId) },
+        data:  { paymentId: req.params.id },
+      }).catch(() => {});
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Stripe attach error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/create-payment-intent", async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: "Stripe non configuré sur le serveur" });
   try {
     const { amount, orderId, reference, customer_name, customer_email, customer_phone, items } = req.body;
 
@@ -174,6 +231,7 @@ app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), async
 
 // POST /api/paydunya/create — crée une facture et retourne l'URL de paiement
 app.post("/api/paydunya/create", async (req, res) => {
+  if (!PAYDUNYA_READY) return res.status(503).json({ error: "PayDunya non configuré sur le serveur" });
   try {
     const { amount, channel, orderId, reference, customer_name, customer_email, customer_phone, items } = req.body;
 
@@ -664,8 +722,9 @@ app.get("/api/auth/me", authCustomer, async (req, res) => {
 // GET /api/config — clés publiques (Stripe, Google Maps…)
 app.get("/api/config", (_req, res) => {
   res.json({
-    stripeKey: process.env.STRIPE_PUBLISHABLE_KEY || "",
-    mapsKey:   process.env.GOOGLE_MAPS_KEY        || "",
+    stripeKey:     process.env.STRIPE_PUBLISHABLE_KEY || "",
+    mapsKey:       process.env.GOOGLE_MAPS_KEY        || "",
+    paydunyaReady: PAYDUNYA_READY,
   });
 });
 

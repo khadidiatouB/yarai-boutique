@@ -324,18 +324,8 @@
           </div>
         </div>
 
-        <!-- Apple / Google Pay -->
-        <div id="wallet-fields" style="display:none">
-          <div class="wallet-btns">
-            <button id="apple-pay-btn" onclick="processStripePayment(cart.reduce((a,c)=>a+c.product.price*c.qty,0), document.getElementById('co-name')?.value, document.getElementById('co-email')?.value)">
-               Pay
-            </button>
-            <button id="google-pay-btn" onclick="processStripePayment(cart.reduce((a,c)=>a+c.product.price*c.qty,0), document.getElementById('co-name')?.value, document.getElementById('co-email')?.value)">
-              <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>&nbsp;Pay
-            </button>
-            <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">Apple Pay disponible sur Safari · Google Pay sur Chrome</p>
-          </div>
-        </div>
+        <!-- "wallet" affiche désormais #card-fields (Stripe Payment Element),
+             Apple Pay / Google Pay y apparaissent automatiquement si disponibles -->
 
       </div><!-- /co-block paiement -->
 
